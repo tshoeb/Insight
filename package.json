@@ -1,4 +1,8 @@
 {
   "name": "vizfilt",
-  "version": "kibana"
+  "version": "6.1.5",
+  "dependencies": {
+    "d3": "3.5.12",
+    "d3-svg": "0.2.2"
+  }
 }

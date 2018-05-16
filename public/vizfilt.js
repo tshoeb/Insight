@@ -15,7 +15,7 @@ function VizfiltProvider(Private) {
   return VisFactory.createBaseVisualization({
     name: 'vizfilt',
     title: 'Vizfilt',
-    icon: 'fa fa-gear',
+    icon: 'fa fa-bar-chart',
     description: 'test vuis',
     category: CATEGORY.OTHER,
     visualization: VisController,
@@ -31,19 +31,20 @@ function VizfiltProvider(Private) {
         {
           group: 'metrics',
           name: 'metric',
-          title: 'Metric',
-          min: 1,
-          aggFilter: ['!derivative', '!geo_centroid'],
+          title: 'Y-axis metric',
+          mustBeFirst: 'true',
+          max: 1,
           defaults: [
             { type: 'count', schema: 'metric' }
           ]
         }, {
           group: 'buckets',
-          name: 'segment',
-          title: 'First Attrib',
+          name: 'attrib',
+          icon: 'fa fa-bar-chart',
+          title: 'X-Axis Attribute',
           min: 0,
-          max: 1,
-          aggFilter: ['!geohash_grid', '!filter']
+          max: 100,
+          aggFilter: ['terms']
         }
       ]),
     }

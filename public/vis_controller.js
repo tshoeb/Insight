@@ -1,11 +1,7 @@
 const d3 = require('d3');
-
-import * as d3_svg from 'd3_svg';
+const d3_svg = require('d3-svg');
 
 //https://github.com/53seven/d3-svg
-
-function constructor(elem, opts) {
-  var svg = d3_svg.create(elem, opts);
 
 class VisController {
   constructor(el, vis) {
@@ -28,15 +24,16 @@ class VisController {
     const vizfiltDiv = document.createElement(`div`);
     vizfiltDiv.className = `myvis-div`;
 
+    vizfiltDiv.setAttribute('style', `height: 700px; width:700px;`);
+
     var margin = {top: 20, right: 160, bottom: 35, left: 30};
 
-    var width = 960 - margin.left - margin.right,
+    var width =960 - margin.left - margin.right,
         height = 500 - margin.top - margin.bottom;
 
-    var svg = d3.create(vizfiltDiv)
+    var svg = d3_svg.create(vizfiltDiv, width= width + margin.left + margin.right, height= height + margin.top + margin.bottom);
 
-    svg
-      .append("svg")
+    svg.append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
       .append("g")
@@ -120,14 +117,14 @@ class VisController {
       .attr("y", function(d) { return y(d.y0 + d.y); })
       .attr("height", function(d) { return y(d.y0) - y(d.y0 + d.y); })
       .attr("width", x.rangeBand())
-      .on("mouseover", function() { tooltip.style("display", null); })
-      .on("mouseout", function() { tooltip.style("display", "none"); })
-      .on("mousemove", function(d) {
-        var xPosition = d3.mouse(this)[0] - 15;
-        var yPosition = d3.mouse(this)[1] - 25;
-        tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
-        tooltip.select("text").text(d.y);
-      });
+      // .on("mouseover", function() { tooltip.style("display", null); })
+      // .on("mouseout", function() { tooltip.style("display", "none"); })
+      // .on("mousemove", function(d) {
+      //   var xPosition = d3.mouse(this)[0] - 15;
+      //   var yPosition = d3.mouse(this)[1] - 25;
+        // tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
+        // tooltip.select("text").text(d.y);
+      // });
 
 
     // Draw legend
@@ -159,22 +156,22 @@ class VisController {
 
 
     // Prep the tooltip bits, initial display is hidden
-    var tooltip = svg.append("g")
-      .attr("class", "tooltip")
-      .style("display", "none");
+    // var tooltip = svg.append("g")
+    //   .attr("class", "tooltip")
+    //   .style("display", "none");
         
-    tooltip.append("rect")
-      .attr("width", 30)
-      .attr("height", 20)
-      .attr("fill", "white")
-      .style("opacity", 0.5);
+    // tooltip.append("rect")
+    //   .attr("width", 30)
+    //   .attr("height", 20)
+    //   .attr("fill", "white")
+    //   .style("opacity", 0.5);
 
-    tooltip.append("text")
-      .attr("x", 15)
-      .attr("dy", "1.2em")
-      .style("text-anchor", "middle")
-      .attr("font-size", "12px")
-      .attr("font-weight", "bold");
+    // tooltip.append("text")
+    //   .attr("x", 15)
+    //   .attr("dy", "1.2em")
+    //   .style("text-anchor", "middle")
+    //   .attr("font-size", "12px")
+    //   .attr("font-weight", "bold");
 
     this.container.appendChild(vizfiltDiv);
 

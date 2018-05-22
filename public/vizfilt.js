@@ -7,6 +7,7 @@ import { CATEGORY } from 'ui/vis/vis_category';
 import { VisFactoryProvider } from 'ui/vis/vis_factory';
 import { VisTypesRegistryProvider } from 'ui/registry/vis_types';
 import { VisSchemasProvider } from 'ui/vis/editors/default/schemas';
+import { VizfiltRequestHandlerProvider } from './vizfilt_request_handler';
 
 function VizfiltProvider(Private) {
   const VisFactory = Private(VisFactoryProvider);
@@ -19,35 +20,19 @@ function VizfiltProvider(Private) {
     description: 'test vuis',
     category: CATEGORY.OTHER,
     visualization: VisController,
+    requestHandler: vizfiltRequestHandler,
+    responseHandler: 'none',
+    options: { showIndexSelection: false },
     visConfig: {
       defaults: {
         // add default parameters
         fontSize: '30'
+        // indexInfo: vis.indexPattern
       },
     },
     editorConfig: {
       optionsTemplate: optionsTemplate,
-      schemas: new Schemas([
-        {
-          group: 'metrics',
-          name: 'metric',
-          title: 'Y-axis metric',
-          mustBeFirst: 'true',
-          max: 1,
-          defaults: [
-            { type: 'count', schema: 'metric' }
-          ]
-        }, {
-          group: 'buckets',
-          name: 'attrib',
-          icon: 'fa fa-bar-chart',
-          title: 'X-Axis Attribute',
-          min: 0,
-          max: 100,
-          aggFilter: ['terms']
-        }
-      ]),
-    }
+    },
   });
 }
 

@@ -17,7 +17,7 @@ function VizfiltProvider(Private) {
     name: 'vizfilt',
     title: 'Vizfilt',
     icon: 'fa fa-bar-chart',
-    description: 'test vuis',
+    description: 'Analyze your data by visualizing top n values of an attribute',
     category: CATEGORY.OTHER,
     visualization: VisController,
     requestHandler: vizfiltRequestHandler,
@@ -26,8 +26,10 @@ function VizfiltProvider(Private) {
     visConfig: {
       defaults: {
         // add default parameters
-        fontSize: '30'
-        // indexInfo: vis.indexPattern
+        index: 'choose',
+        attribute: 'choose',
+        top_n: 10,
+        order: 'ascending'
       },
     },
     editorConfig: {

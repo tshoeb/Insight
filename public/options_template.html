@@ -1,8 +1,9 @@
-<div class="form-group">
-  <label>Index - {{ vis.params.index }}</label>
-  <select ng-model="vis.params.index" class="form-control"/>
-  	<option value="">
-  	<option value="index 1">
-  	<option value="index 2">
-  </select>
+<div class="form-group" ng-controller="VizfiltOptionsController">
+	<form>
+		Index - {{ vis.params.index }}
+		<select ng-model="vis.params.index">
+		  	<option value="index 1">Index 1
+		  	<option value="index 2">Index 2
+		</select>
+  	</form>
 </div>

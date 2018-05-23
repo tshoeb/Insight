@@ -1,3 +1,4 @@
+import { QueryProcessor } from './data_model/query_processor';
 import { dashboardContextProvider } from 'plugins/kibana/dashboard/dashboard_context';
 /*import { SearchCache } from './data_model/search_cache';
 import { TimeCache } from './data_model/time_cache';*/
@@ -14,6 +15,8 @@ export function VizfiltRequestHandlerProvider(Private, es, timefilter, serviceSe
 
     handler(vis) {
       console.log(vis.params.index)
+      const qp = new QueryProcessor(vis.params.index, vis.params.attribute, vis.params.top_n, vis.params.order)
+      return qp.processAsync();
     }
 
   };

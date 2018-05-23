@@ -9,9 +9,11 @@ import { VisTypesRegistryProvider } from 'ui/registry/vis_types';
 import { VisSchemasProvider } from 'ui/vis/editors/default/schemas';
 import { VizfiltRequestHandlerProvider } from './vizfilt_request_handler';
 
+import './vizfilt_options_controller';
+
 function VizfiltProvider(Private) {
   const VisFactory = Private(VisFactoryProvider);
-  const Schemas = Private(VisSchemasProvider);
+  const vizfiltRequestHandler = Private(VizfiltRequestHandlerProvider).handler;
 
   return VisFactory.createBaseVisualization({
     name: 'vizfilt',
@@ -19,10 +21,6 @@ function VizfiltProvider(Private) {
     icon: 'fa fa-bar-chart',
     description: 'Analyze your data by visualizing top n values of an attribute',
     category: CATEGORY.OTHER,
-    visualization: VisController,
-    requestHandler: vizfiltRequestHandler,
-    responseHandler: 'none',
-    options: { showIndexSelection: false },
     visConfig: {
       defaults: {
         // add default parameters
@@ -35,6 +33,10 @@ function VizfiltProvider(Private) {
     editorConfig: {
       optionsTemplate: optionsTemplate,
     },
+    visualization: VisController,
+    requestHandler: vizfiltRequestHandler,
+    responseHandler: 'none',
+    options: { showIndexSelection: false },
   });
 }
 

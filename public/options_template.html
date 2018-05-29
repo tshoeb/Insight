@@ -1,9 +1,15 @@
 <div class="form-group" ng-controller="VizfiltOptionsController">
 	<form>
 		Index - {{ vis.params.index }}
+		<select ng-model="vis.params.index" ng-options="o as o for o in idlist">
+		</select>
+
+		Attribute - {{ vis.params.attribute }}
 		<select ng-model="vis.params.index">
-		  	<option value="index 1">Index 1
-		  	<option value="index 2">Index 2
+		  	<option value="attribute 1">Attribute 1
+		  	<option value="attribute 2">Attribute 2
 		</select>
   	</form>
+  	<label>Top N Values- {{ vis.params.top_n }}</label>
+  	<input type="range" ng-model="vis.params.top_n" class="form-control" min="10" max="100" />
 </div>

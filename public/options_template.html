@@ -1,15 +1,28 @@
 <div class="form-group" ng-controller="VizfiltOptionsController">
 	<form>
-		Index - {{ vis.params.index }}
-		<select ng-model="vis.params.index" ng-options="o as o for o in idlist">
+		<label>Index:</label>
+		<select ng-model="vis.params.index" ng-options="o as o for o in idlist" ng-change="makeselection()">
 		</select>
 
-		Attribute - {{ vis.params.attribute }}
-		<select ng-model="vis.params.index">
-		  	<option value="attribute 1">Attribute 1
-		  	<option value="attribute 2">Attribute 2
-		</select>
+		<fieldset  data-ng-repeat="choice in choices" ng-show="selected">
+			<pre><label>Attribute:</label>
+			<select ng-model="choice.attr" ng-options="term as term for term in termlist">
+			</select></pre>
+
+			<pre><label>Top N Values:</label>
+	  		<input type="range" ng-model="choice.topn" min="10" max="100"/></pre>
+	  		<button class="remove" ng-show="$last" ng-click="removeChoice()">-</button>
+	  	</fieldset>
+	  	<button class="addfields" ng-click="addNewChoice()">Add fields</button>
+	  	<!-- <button type="button" ng-click="bindem()">Process</button> -->
   	</form>
-  	<label>Top N Values- {{ vis.params.top_n }}</label>
-  	<input type="range" ng-model="vis.params.top_n" class="form-control" min="10" max="100" />
+  	<button class="compfields" ng-click="complete()">Process</button>
+  	
+  	<div id="choicesDisplay">
+      {{ choices }}
+  	</div>
+
+  	<md-button class="md-fab md-mini md-primary" aria-label="Use Android">
+     	<md-icon md-svg-src="img/plus.svg"></md-icon>
+    </md-button>
 </div>

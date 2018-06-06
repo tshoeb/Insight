@@ -12,6 +12,25 @@ module.service('client', function (esFactory) {
 
 module.controller('VizfiltOptionsController', ($scope, client, esFactory) => {
 	var indexlist = [];
+	$scope.attr = "";
+	$scope.topn = 0;
+	$scope.compdata = [];
+	$scope.selected = false;
+	$scope.choices = [{}];
+
+	$scope.addNewChoice = function() {
+	    var newItemNo = $scope.choices.length+1;
+	    $scope.choices.push({});
+	 };
+
+	$scope.removeChoice = function() {
+	    var lastItem = $scope.choices.length-1;
+	    $scope.choices.splice(lastItem);
+	};
+
+	$scope.complete = function(){
+		$scope.vis.params.attributes = $scope.choices;
+	}
 
 	client.cat.indices({
 		h: ['index']
@@ -27,14 +46,30 @@ module.controller('VizfiltOptionsController', ($scope, client, esFactory) => {
 		$scope.idlist = indexlist;
 	});
 
-	client.indices.getMapping({
+	// $scope.bindem = function(){
+	// 	console.log($scope.attr);
+	// 	$scope.compdata.push({
+	// 	    key:   $scope.attr,
+	// 	    value: $scope.topn
+	// 	});
+	// 	console.log("it is working");
+	// 	console.log($scope.compdata);
+	// };
+
+	$scope.makeselection = function(){
+		client.indices.getMapping({
 		index: indexlist
-	}).then(function (body) {
-		for (var key in body) {
-			if(key != '.kibana'){
-				console.log(key);
-				console.log(body[key]['mappings']['requests']['properties']);
+		}).then(function (body) {
+			for (var key in body) {
+				if(key != '.kibana'){
+					console.log(key);
+					var termdic = (body[key]['mappings']['requests']['properties'])
+					$scope.termlist = Object.keys(termdic);
+				}
 			}
-		}
-	});
+		});
+		$scope.selected = true;
+		console.log("it is working too");
+	};
+
 });

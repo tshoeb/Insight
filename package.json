@@ -5,6 +5,7 @@
     "d3": "3.5.12",
     "d3-svg": "0.2.2",
     "elasticsearch": "15.0.0",
-    "json-stringify-pretty-compact": "^1.1.0"
+    "json-stringify-pretty-compact": "^1.1.0",
+    "angular-md": "1.0.0"
   }
 }

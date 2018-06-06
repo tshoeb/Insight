@@ -25,9 +25,7 @@ function VizfiltProvider(Private) {
       defaults: {
         // add default parameters
         index: 'choose',
-        attribute: 'choose',
-        top_n: 10,
-        order: 'ascending'
+        attributes: []
       },
     },
     editorConfig: {

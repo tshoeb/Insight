@@ -9,13 +9,16 @@ export function VizfiltRequestHandlerProvider(Private, es, timefilter, serviceSe
   /*const searchCache = new SearchCache(es, { max: 10, maxAge: 4 * 1000 });
   const timeCache = new TimeCache(timefilter, 3 * 1000);*/
 
+  // console.log(es)
+
   return {
 
     name: 'vizfilt',
 
     handler(vis) {
-      console.log(vis.params.index)
-      const qp = new QueryProcessor(vis.params.index, vis.params.attributes)//, vis.params.top_n, vis.params.order)
+      console.log("i am the request hander")
+      console.log(vis.params.attributes)
+      const qp = new QueryProcessor(vis.params.index, vis.params.attributes, es);//, vis.params.top_n, vis.params.order)
       return qp.processAsync();
     }
 

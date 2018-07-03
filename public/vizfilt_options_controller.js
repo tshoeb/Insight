@@ -69,7 +69,7 @@ module.controller('VizfiltOptionsController', ($scope, client, esFactory) => {
 			}
 		});
 		$scope.selected = true;
-		console.log("it is working too");
+		//console.log("it is working too");
 	};
 
 });

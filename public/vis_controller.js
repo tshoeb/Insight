@@ -9,7 +9,7 @@ class VisController {
     this.el = el;
 
     this.container = document.createElement('div');
-    this.container.className = 'myvis-container-div';
+    this.container.id = 'myvis-container-div';
     this.el.appendChild(this.container);
   }
 
@@ -27,8 +27,8 @@ class VisController {
     if (rawdata != undefined && rawdata.length > 0){
       console.log("yassss");
 
-      var datas = [];
-      var vallist=[];
+      var data = [];
+      var xData=[];
 
       rawdata.forEach(function (arrayItem) {
           var attr = arrayItem['key'];
@@ -36,21 +36,15 @@ class VisController {
           refinedata0.forEach(function (dataItem){
             var attr_val =  dataItem['key'];
             var doc_count = dataItem['doc_count'];
-            vallist.push(dataItem['key']);
+            xData.push(dataItem['key']);
             var currentbar = {'attribute': attr};
             currentbar[attr_val] = doc_count;
-            // currentbar['attribute'] = attr;
-            // currentbar[attr_val] = doc_count;
-            datas.push(currentbar);
-            // datas.push({
-            //   attribute: attr,
-            //   attr_val: doc_count;
-            // });
+            data.push(currentbar);
           });
-          //datas.push(currentbar);
       });
 
-      console.log(datas);
+      console.log(data);
+      console.log(xData);
 
       this.container.innerHTML = '';
       const vizfiltDiv = document.createElement(`div`);
@@ -58,155 +52,136 @@ class VisController {
 
       vizfiltDiv.setAttribute('style', `height: 700px; width:700px;`);
 
-      var margin = {top: 20, right: 160, bottom: 35, left: 30};
+      var margin = {top: 20, right: 50, bottom: 30, left: 0},
+            width = 400 - margin.left - margin.right,
+            height = 900- margin.top - margin.bottom;
 
-      var width =960 - margin.left - margin.right,
-          height = 500 - margin.top - margin.bottom;
+      // var x = d3.scale.ordinal()
+      //         .rangeRoundBands([0, width], .35);
 
-      var svg = d3_svg.create(vizfiltDiv, width= width + margin.left + margin.right, height= height + margin.top + margin.bottom);
+      // var y = d3.scale.linear()
+      //         .rangeRound([height, 0]);
 
-      svg.append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+      // var color = d3.scale.category20();
 
+      // var xAxis = d3.svg.axis()
+      //         .scale(x)
+      //         .orient("bottom");
 
-      /* Data in strings like it would be if imported from a csv */
+      var svg = d3_svg.create(vizfiltDiv, {width: width + margin.left + margin.right, height: height + margin.top + margin.bottom});
 
-      var data = [
-        { year: "2006", redDelicious: "10", mcintosh: "15", oranges: "9", pears: "6" },
-        { year: "2007", redDelicious: "12", mcintosh: "18", oranges: "9", pears: "4" },
-        { year: "2008", redDelicious: "05", mcintosh: "20", oranges: "8", pears: "2" },
-        { year: "2009", redDelicious: "01", mcintosh: "15", oranges: "5", pears: "4" },
-        { year: "2010", redDelicious: "02", mcintosh: "10", oranges: "4", pears: "2" },
-        { year: "2011", redDelicious: "03", mcintosh: "12", oranges: "6", pears: "3" },
-        { year: "2012", redDelicious: "04", mcintosh: "15", oranges: "8", pears: "1" },
-        { year: "2013", redDelicious: "06", mcintosh: "11", oranges: "9", pears: "4" },
-        { year: "2014", redDelicious: "10", mcintosh: "13", oranges: "9", pears: "5" },
-        { year: "2015", redDelicious: "16", mcintosh: "19", oranges: "6", pears: "9" },
-        { year: "2016", redDelicious: "19", mcintosh: "17", oranges: "5", pears: "7" },
-      ];
+      // svg.append("svg")
+      //     .attr("width", width + margin.left + margin.right)
+      //     .attr("height", height + margin.top + margin.bottom)
+      //    .append("g")
+      //     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-      console.log(data);
+      var series = d3.stack()
+        .keys(xData)
+        .offset(d3.stackOffsetDiverging)
+        (data);
 
-      //var parse = d3.time.format("%Y").parse;
+      // var svg = d3.select("svg"),
+      //     margin = {top: 20, right: 30, bottom: 30, left: 60},
+      //     width = +svg.attr("width"),
+      //     height = +svg.attr("height");
 
+      var x = d3.scaleBand()
+          .domain(data.map(function(d) { return d.attribute; }))
+          .rangeRound([margin.left, width - margin.right])
+          .padding(0.1);
 
-      // Transpose the data into layers
-      var dataset = d3.layout.stack()(vallist.map(function(vals) {//fruit
-        return datas.map(function(d) {
-          //console.log(d[vals]);
-          return {x: d.attribute, y: +d[vals]};//return {x: parse(d.year), y: +d[fruit]};
-        });
-      }));
+      var y = d3.scaleLinear()
+          .domain([d3.min(series, stackMin), d3.max(series, stackMax)])
+          .rangeRound([height - margin.bottom, margin.top]);
 
-
-      // Set x, y and colors
-      var x = d3.scale.ordinal()
-        .domain(dataset[0].map(function(d) { return d.x; }))
-        .rangeRoundBands([10, width-10], 0.02);
-
-      var y = d3.scale.linear()
-        .domain([0, d3.max(dataset, function(d) {  return d3.max(d, function(d) { return d.y0 + d.y; });  })])
-        .range([height, 0]);
-
-      var colors = ["b33040", "#d25c4d", "#f2b447", "#d9d574"];
-
-
-      // Define and draw axes
-      var yAxis = d3.svg.axis()
-        .scale(y)
-        .orient("left")
-        .ticks(5)
-        .tickSize(-width, 0, 0)
-        .tickFormat(function(d) { return d } );
-
-      var xAxis = d3.svg.axis()
-        .scale(x)
-        .orient("bottom")
-        .tickFormat(function(d) { return d } );
+      var z = d3.scaleOrdinal(d3.schemeCategory10);
 
       svg.append("g")
-        .attr("class", "y axis")
-        .call(yAxis);
-
-      svg.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + height + ")")
-        .call(xAxis);
-
-
-      // Create groups for each series, rects for each segment 
-      var groups = svg.selectAll("g.cost")
-        .data(dataset)
+        .selectAll("g")
+        .data(series)
         .enter().append("g")
-        .attr("class", "cost")
-        .style("fill", function(d, i) { return colors[i]; });
-
-      var rect = groups.selectAll("rect")
+          .attr("fill", function(d) { return z(d.key); })
+        .selectAll("rect")
         .data(function(d) { return d; })
-        .enter()
-        .append("rect")
-        .attr("x", function(d) { return x(d.x); })
-        .attr("y", function(d) { return y(d.y0 + d.y); })
-        .attr("height", function(d) { return y(d.y0) - y(d.y0 + d.y); })
-        .attr("width", x.rangeBand())
-        // .on("mouseover", function() { tooltip.style("display", null); })
-        // .on("mouseout", function() { tooltip.style("display", "none"); })
-        // .on("mousemove", function(d) {
-        //   var xPosition = d3.mouse(this)[0] - 15;
-        //   var yPosition = d3.mouse(this)[1] - 25;
-          // tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
-          // tooltip.select("text").text(d.y);
-        // });
+        .enter().append("rect")
+          .attr("width", x.bandwidth)
+          .attr("x", function(d) { return x(d.data.attribute); })
+          .attr("y", function(d) { return y(d[1]); })
+          .attr("height", function(d) { return y(d[0]) - y(d[1]); })
 
+      svg.append("g")
+          .attr("transform", "translate(0," + y(0) + ")")
+          .call(d3.axisBottom(x));
 
-      // Draw legend
-      // var legend = svg.selectAll(".legend")
-      //   .data(colors)
-      //   .enter().append("g")
-      //   .attr("class", "legend")
-      //   .attr("transform", function(d, i) { return "translate(30," + i * 19 + ")"; });
-       
-      // legend.append("rect")
-      //   .attr("x", width - 18)
-      //   .attr("width", 18)
-      //   .attr("height", 18)
-      //   .style("fill", function(d, i) {return colors.slice().reverse()[i];});
-       
-      // legend.append("text")
-      //   .attr("x", width + 5)
-      //   .attr("y", 9)
-      //   .attr("dy", ".35em")
-      //   .style("text-anchor", "start")
-      //   .text(function(d, i) { 
-      //     switch (i) {
-      //       case 0: return "Anjou pears";
-      //       case 1: return "Naval oranges";
-      //       case 2: return "McIntosh apples";
-      //       case 3: return "Red Delicious apples";
-      //     }
-      //   });
+      svg.append("g")
+          .attr("transform", "translate(" + margin.left + ",0)")
+          .call(d3.axisLeft(y));
 
+      function stackMin(serie) {
+        return d3.min(serie, function(d) { return d[0]; });
+      }
 
-      // Prep the tooltip bits, initial display is hidden
-      // var tooltip = svg.append("g")
-      //   .attr("class", "tooltip")
-      //   .style("display", "none");
-          
-      // tooltip.append("rect")
-      //   .attr("width", 30)
-      //   .attr("height", 20)
-      //   .attr("fill", "white")
-      //   .style("opacity", 0.5);
+      function stackMax(serie) {
+        return d3.max(serie, function(d) { return d[1]; });
+      }
 
-      // tooltip.append("text")
-      //   .attr("x", 15)
-      //   .attr("dy", "1.2em")
-      //   .style("text-anchor", "middle")
-      //   .attr("font-size", "12px")
-      //   .attr("font-weight", "bold");
+      //var svgRoot = this.el.getElementById("myvis-container-div");
+
+      //var div = d3.select(svgRoot);
+
+      // var dataIntermediate = xData.map(function (c) {
+      //     return data.map(function (d) {
+      //         console.log(d.attribute);
+      //         return {x: d.attribute, y: d[c]};
+      //     });
+      // });
+
+      // var dataStackLayout = d3.layout.stack()(dataIntermediate);
+
+      // x.domain(dataStackLayout[0].map(function (d) {
+      //     return d.x;
+      // }));
+
+      // y.domain([0,
+      //     d3.max(dataStackLayout[dataStackLayout.length - 1],
+      //             function (d) { 
+      //               //console.log(d.y);
+      //               return d.y0 + d.y;
+      //             })
+      //     ])
+      //   .nice();
+
+      // console.log(svg.selectAll(".stack"));
+
+      // var layer = svg.selectAll(".stack")
+      //         .data(dataStackLayout)
+      //         .enter().append("g")
+      //         .attr("class", "stack")
+      //         .style("fill", function (d, i) {
+      //             return color(i);
+      //         });
+
+      // layer.selectAll("rect")
+      //         .data(function (d) {
+      //             return d;
+      //         })
+      //         .enter().append("rect")
+      //         .attr("x", function (d) {
+      //             return x(d.x);
+      //         })
+      //         .attr("y", function (d) {
+      //             return y(d.y + d.y0);
+      //         })
+      //         .attr("height", function (d) {
+      //             return y(d.y0) - y(d.y + d.y0);
+      //         })
+      //         .attr("width", x.rangeBand());
+
+      // svg.append("g")
+      //     .attr("class", "axis")
+      //     .attr("transform", "translate(0," + height + ")")
+      //    .call(xAxis);
 
       this.container.appendChild(vizfiltDiv);
 
@@ -255,7 +230,7 @@ class VisController {
       //     this.vis.API.queryFilter.addFilters(filter);
       //   });
 
-      //   this.container.appendChild(metricDiv);
+      //this.container.appendChild(metricDiv);
       // });
 
     }

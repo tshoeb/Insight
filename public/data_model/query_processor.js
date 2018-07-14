@@ -15,10 +15,10 @@ const module = uiModules.get('kibana/vizfilt', ['kibana'], ['elasticsearch']);
 
 export class QueryProcessor {
 
-	constructor(index, attributes, es){
+	constructor(index, attributes, realdata, es){
 		this.index = index;
 		this.attributes= attributes;
-		this.realdata = [];
+		this.realdata = realdata;
 		this.es = es;
 	}
 
@@ -33,42 +33,36 @@ export class QueryProcessor {
 	  }
 
 	async _processAsync(){
-		this._getdata();
+		this._getdata(this.attributes);
 	}
 
-	_getdata(){
-		var arrayLength = this.attributes.length;
+	async _getdata(attributes){
+		//var arrayLength = this.attributes.length;
 		var temp = [];
-		for (var i = 0; i < arrayLength; i++) {
-		    var current_value = this.attributes[i];
+		for (const current_value of attributes) {
+		    //var current_value = this.attributes[i];
 		    var current_attribute = current_value.attr;
 		    var current_topn = current_value.topn;
-		    //console.log("yo. yo start with " + i)
-
-		  //   uiModules.get('kibana', 'elasticsearch')
-				// .run(function (es) {
-				// 	console.log("yo. yo start elasting ")
-				  this.es.search({
-				  	"index": this.index,
-				  	"body": {
-				  		"aggs" : {
-					        "attr" : {
-					            "terms" : {
-					                "field" : current_attribute,
-					                "size" : current_topn
-					            }
-					        }
-					    }
-				  	}
-				  })
-				  .then(function (body){
-				  	console.log("working");
-				  	//console.log(body['aggregations']['attr']['buckets']);
-				  	temp.push({
-					    key: current_attribute,
-					    value: body['aggregations']['attr']['buckets']
-					});
-				  });
+	  		//uiModules.get('kibana', 'elasticsearch')
+			// .run(function (es) {
+			await this.es.search({
+				"index": this.index,
+			  	"body": {
+			  		"aggs" : {
+				        "attr" : {
+				            "terms" : {
+				                "field" : current_attribute,
+				                "size" : current_topn
+				            }
+				        }
+				    }
+			  	}
+			}).then(function (body){
+			  	temp.push({
+				    key: current_attribute,
+				    value: body['aggregations']['attr']['buckets']
+				});
+			});
 				  // .catch(err => {
 				  //   console.log('error pinging servers');
 				  // });

@@ -19,13 +19,28 @@ class VisController {
 
   render(visData, status) {
     console.log("i am the visualizer");
-    //console.log(visData['realdata']);
+    console.log(visData);
+    console.log(visData['realdata']);
     //console.log(status);
 
-    var rawdata = visData['realdata'];
+    // while(visData['realdata'].length > 0){
+    //   var rawdata = visData['realdata'];
+    // }
+    function checkIfFinished(){
+      return(visData['realdata'].length >= 1);
+    }
+    var isfinished = false;
+    var timeout = setInterval(function() { 
+      if(checkIfFinished()) { 
+          clearInterval(timeout); 
+          isfinished = true; 
+        } 
+    }, 100);
+    var rawdata = [];
+    rawdata = visData['realdata'];
     console.log(rawdata);
     if (rawdata != undefined && rawdata.length > 0){
-      console.log("yassss");
+      //console.log("yassss");
 
       var data = [];
       var xData=[];
@@ -43,8 +58,8 @@ class VisController {
           });
       });
 
-      console.log(data);
-      console.log(xData);
+      // console.log(data);
+      // console.log(xData);
 
       this.container.innerHTML = '';
       const vizfiltDiv = document.createElement(`div`);

@@ -26,6 +26,7 @@ function VizfiltProvider(Private) {
         // add default parameters
         index: 'choose',
         attributes: [],
+        realdata:[],
       },
     },
     editorConfig: {

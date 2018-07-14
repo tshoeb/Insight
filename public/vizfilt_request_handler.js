@@ -16,9 +16,9 @@ export function VizfiltRequestHandlerProvider(Private, es, timefilter, serviceSe
     name: 'vizfilt',
 
     handler(vis) {
-      console.log("i am the request hander")
-      console.log(vis.params.attributes)
-      const qp = new QueryProcessor(vis.params.index, vis.params.attributes, es);//, vis.params.top_n, vis.params.order)
+      //console.log("i am the request hander")
+      //console.log(vis.params.attributes)
+      const qp = new QueryProcessor(vis.params.index, vis.params.attributes, vis.params.realdata,es);//, vis.params.top_n, vis.params.order)
       return qp.processAsync();
     }
 

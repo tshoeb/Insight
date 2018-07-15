@@ -30,13 +30,13 @@ export class QueryProcessor {
 	      this.error = Utils.formatErrorToStr(err);
 	    }
 	    return this;
-	  }
-
-	async _processAsync(){
-		this._getdata(this.attributes);
 	}
 
-	async _getdata(attributes){
+	async _processAsync(){
+		this._getdata(this.attributes, this.realdata);
+	}
+
+	async _getdata(attributes, realdata){
 		//var arrayLength = this.attributes.length;
 		var temp = [];
 		for (const current_value of attributes) {
@@ -45,7 +45,26 @@ export class QueryProcessor {
 		    var current_topn = current_value.topn;
 	  		//uiModules.get('kibana', 'elasticsearch')
 			// .run(function (es) {
-			await this.es.search({
+			// await this.es.search({
+			// 	"index": this.index,
+			//   	"body": {
+			//   		"aggs" : {
+			// 	        "attr" : {
+			// 	            "terms" : {
+			// 	                "field" : current_attribute,
+			// 	                "size" : current_topn
+			// 	            }
+			// 	        }
+			// 	    }
+			//   	}
+			// }).then(function (body){
+			//   	realdata.push({
+			// 	    key: current_attribute,
+			// 	    value: body['aggregations']['attr']['buckets']
+			// 	});
+			// });
+
+			var temp = await this.es.search({
 				"index": this.index,
 			  	"body": {
 			  		"aggs" : {
@@ -57,18 +76,31 @@ export class QueryProcessor {
 				        }
 				    }
 			  	}
-			}).then(function (body){
-			  	temp.push({
-				    key: current_attribute,
-				    value: body['aggregations']['attr']['buckets']
-				});
+			});
+			realdata.push({
+			    key: current_attribute,
+			    value: temp['aggregations']['attr']['buckets']
 			});
 				  // .catch(err => {
 				  //   console.log('error pinging servers');
 				  // });
 				// });
 		}
-		this.realdata = temp;
+		// function checkIfFinished(){
+	 //      	return(temp.length >= 1);
+	 //    }
+	 //    var isfinished = false;
+	 //    var timeout = setInterval(function() { 
+	 //      	if(checkIfFinished()) { 
+	 //          clearInterval(timeout); 
+	 //          isfinished = true;
+	 //          console.log("i m temp")
+	 //          console.log(temp);
+	 //          this.realdata = temp;
+	 //        } 
+	 //    }, 100);
+	 //    console.log("hi i m qp")
+	 //    console.log(this.realdata);
 	}
 }
 

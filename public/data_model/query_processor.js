@@ -15,10 +15,11 @@ const module = uiModules.get('kibana/vizfilt', ['kibana'], ['elasticsearch']);
 
 export class QueryProcessor {
 
-	constructor(index, attributes, realdata, es){
+	constructor(index, attributes, realdata, checker, es){
 		this.index = index;
 		this.attributes= attributes;
 		this.realdata = realdata;
+		this.checker=checker;
 		this.es = es;
 	}
 
@@ -86,6 +87,10 @@ export class QueryProcessor {
 				  // });
 				// });
 		}
+		this.checker=true;
+		console.log("i am qp");
+		console.log(realdata.length);
+		console.log(realdata);
 		// function checkIfFinished(){
 	 //      	return(temp.length >= 1);
 	 //    }

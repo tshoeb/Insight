@@ -34,14 +34,10 @@ class VisController {
     });
   }
   async _getdata(visData){
-    function checkIfFinished(){
-      return(visData['realdata'].length >= 1);
-    }
-    var isfinished = false;
     var timeout = setInterval(function() { 
-      if(checkIfFinished()) { 
+      if(visData['checker']) { 
+          console.log(visData['checker']);
           clearInterval(timeout); 
-          isfinished = true; 
         } 
     }, 100);
     return visData['realdata'];

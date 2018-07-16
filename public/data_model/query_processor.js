@@ -88,9 +88,9 @@ export class QueryProcessor {
 				// });
 		}
 		this.checker=true;
-		console.log("i am qp");
-		console.log(realdata.length);
-		console.log(realdata);
+		// console.log("i am qp");
+		// console.log(realdata.length);
+		// console.log(realdata);
 		// function checkIfFinished(){
 	 //      	return(temp.length >= 1);
 	 //    }

@@ -21,34 +21,37 @@ class VisController {
     console.log("i am the visualizer");
     console.log(visData);
 
-    var rawdata=[];
-    rawdata = await this._getdata(visData)
-    
+    // var rawdata=[];
+    var rawdata = await this._getdata(visData)
     console.log(rawdata);
+    //await this._getdata(visData);
 
-    if (rawdata != undefined && rawdata.length > 0){
-      await this._buildit(rawdata);
-    }
-    return new Promise(resolve => {
-      resolve('when done rendering');
-    });
+    // if (rawdata != undefined && rawdata.length > 0){
+    //   await this._buildit(rawdata);
+    // }
+    // return new Promise(resolve => {
+    //   resolve('when done rendering');
+    // });
   }
   async _getdata(visData){
     var timeout = setInterval(function() { 
       if(visData['checker']) { 
           console.log(visData['checker']);
-          clearInterval(timeout); 
+          clearInterval(timeout);
+          if (visData['realdata'] != undefined && visData['realdata'] > 0){
+            this._buildit(visData['realdata']);
+          } 
         } 
     }, 100);
-    return visData['realdata'];
   }
   async _buildit(rawdata){
+    console.log("i m build it");
     var data = [];
     var xData=[];
 
     console.log("length before printing:"+rawdata.length)
     console.log("type of rawdata:"+typeof(rawdata));
-    console.log(rawdata);
+    //console.log(rawdata);
 
     // rawdata.forEach(function (arrayItem) {
     //     var attr = arrayItem['key'];
@@ -64,7 +67,7 @@ class VisController {
     // });
 
     console.log("length:"+ rawdata.length);
-    console.log(rawdata[1]);
+    //console.log(rawdata[1]);
     for (var j=0; j < rawdata.length; j++){
       var arrayItem = rawdata[j]
       var attr = arrayItem['key'];
@@ -222,6 +225,9 @@ class VisController {
     //    .call(xAxis);
 
     this.container.appendChild(vizfiltDiv);
+    return new Promise(resolve => {
+      resolve('when done rendering');
+    });
   }
 };
 

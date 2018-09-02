@@ -1,7 +1,12 @@
 import { Utils } from './utils';
 import { uiModules } from 'ui/modules';
+import { timefilter } from 'ui/timefilter';
+// import { FilterBarQueryFilterProvider } from 'ui/filter_bar/query_filter';
 
-const module = uiModules.get('kibana/vizfilt', ['kibana'], ['elasticsearch']);
+// const module = uiModules.get('kibana/vizfilt', ['kibana'], ['elasticsearch']);
+// const queryfilter = FilterBarQueryFilterProvider;
+// console.log(queryfilter);
+// var currentfilter = queryfilter.getFilters();
 
 // module.service('client', function (esFactory) {
 //   return esFactory({
@@ -15,97 +20,80 @@ const module = uiModules.get('kibana/vizfilt', ['kibana'], ['elasticsearch']);
 
 export class QueryProcessor {
 
-	constructor(index, attributes, realdata, checker, es){
+	constructor(index, attributes, realdata, checker, timefilter, es, dashboardContext){
 		this.index = index;
 		this.attributes= attributes;
 		this.realdata = realdata;
 		this.checker=checker;
+		this.timefilter = timefilter;
 		this.es = es;
+		this.dashboardContext = dashboardContext;
 	}
 
 	async processAsync() {
-	    try {
-	      await this._processAsync();
-	    } catch (err) {
-	      // if we reject current promise, it will use the standard Kibana error handling
-	      this.error = Utils.formatErrorToStr(err);
-	    }
+	    // try {
+	    //   await this._processAsync();
+	    // } catch (err) {
+	    //   // if we reject current promise, it will use the standard Kibana error handling
+	    //   this.error = Utils.formatErrorToStr(err);
+	    // }
+	    await this._processAsync();
 	    return this;
 	}
 
 	async _processAsync(){
-		this._getdata(this.attributes, this.realdata);
+		var tempdata = [];
+		var timeattrs = this.timefilter.getBounds();
+		var min = timeattrs.min.valueOf();
+		var max = timeattrs.max.valueOf();
+		console.log(this.dashboardContext());
+		await this.getdata(this.attributes, tempdata, min, max);
+		this.realdata = tempdata;
 	}
 
-	async _getdata(attributes, realdata){
-		//var arrayLength = this.attributes.length;
+	async getdata(attributes, tempdata, min, max){
 		var temp = [];
 		for (const current_value of attributes) {
-		    //var current_value = this.attributes[i];
 		    var current_attribute = current_value.attr;
 		    var current_topn = current_value.topn;
-	  		//uiModules.get('kibana', 'elasticsearch')
-			// .run(function (es) {
-			// await this.es.search({
-			// 	"index": this.index,
-			//   	"body": {
-			//   		"aggs" : {
-			// 	        "attr" : {
-			// 	            "terms" : {
-			// 	                "field" : current_attribute,
-			// 	                "size" : current_topn
-			// 	            }
-			// 	        }
-			// 	    }
-			//   	}
-			// }).then(function (body){
-			//   	realdata.push({
-			// 	    key: current_attribute,
-			// 	    value: body['aggregations']['attr']['buckets']
-			// 	});
-			// });
 
-			var temp = await this.es.search({
-				"index": this.index,
-			  	"body": {
-			  		"aggs" : {
-				        "attr" : {
-				            "terms" : {
-				                "field" : current_attribute,
-				                "size" : current_topn
-				            }
-				        }
-				    }
-			  	}
-			});
-			realdata.push({
-			    key: current_attribute,
-			    value: temp['aggregations']['attr']['buckets']
-			});
-				  // .catch(err => {
-				  //   console.log('error pinging servers');
-				  // });
-				// });
+			await this._runes(current_attribute, current_topn, tempdata, min, max);
 		}
-		this.checker=true;
-		// console.log("i am qp");
-		// console.log(realdata.length);
-		// console.log(realdata);
-		// function checkIfFinished(){
-	 //      	return(temp.length >= 1);
-	 //    }
-	 //    var isfinished = false;
-	 //    var timeout = setInterval(function() { 
-	 //      	if(checkIfFinished()) { 
-	 //          clearInterval(timeout); 
-	 //          isfinished = true;
-	 //          console.log("i m temp")
-	 //          console.log(temp);
-	 //          this.realdata = temp;
-	 //        } 
-	 //    }, 100);
-	 //    console.log("hi i m qp")
-	 //    console.log(this.realdata);
+	}
+
+	async _runes(attr,topn, tempdata, min, max){
+		var temp = await this.es.search({
+			"index": this.index,
+		  	"body": {
+		  		"query": {
+		            "bool": {
+		                "filter": {
+		                    "range": {
+		                        "epoch": {
+		                            "gte": min,
+		                            "lte": max
+		                        }
+		                    }
+		                }
+		            }
+		        },
+		  		"aggs" : {
+			        "attr" : {
+			            "terms" : {
+			                "field" : attr,
+			                "size" : topn,
+			                "order" : { "_count" : "desc" }
+			            }
+			        }
+			    }
+		  	}
+		}).then(function(result) {
+			console.log("Data Pusher")
+			tempdata.push({
+			    key: attr,
+			    value: result['aggregations']['attr']['buckets']
+			});
+		});
 	}
 }
 

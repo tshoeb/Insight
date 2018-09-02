@@ -17,40 +17,42 @@ class VisController {
     this.el.innerHTML = '';
   }
 
-  async render(visData, status) {
+  render(visData, status) {
     console.log("i am the visualizer");
     console.log(visData);
 
     // var rawdata=[];
-    var rawdata = await this._getdata(visData)
-    console.log(rawdata);
+    //var rawdata = this.getdata(visData)
+    if (visData['realdata'] != undefined ){//&& visData['realdata'] > 0){
+      this.buildit(visData['attributes'], visData['realdata']);
+    }
     //await this._getdata(visData);
 
     // if (rawdata != undefined && rawdata.length > 0){
     //   await this._buildit(rawdata);
     // }
-    // return new Promise(resolve => {
-    //   resolve('when done rendering');
-    // });
+    return new Promise(resolve => {
+      resolve('when done rendering');
+    });
   }
-  async _getdata(visData){
+  getdata(visData){
     var timeout = setInterval(function() { 
       if(visData['checker']) { 
           console.log(visData['checker']);
           clearInterval(timeout);
           if (visData['realdata'] != undefined && visData['realdata'] > 0){
-            this._buildit(visData['realdata']);
+            this.buildit(visData['realdata']);
           } 
         } 
     }, 100);
   }
-  async _buildit(rawdata){
+  buildit(attrs, rawdata){
     console.log("i m build it");
     var data = [];
     var xData=[];
 
-    console.log("length before printing:"+rawdata.length)
-    console.log("type of rawdata:"+typeof(rawdata));
+    // console.log("length before printing:"+rawdata.length)
+    // console.log("type of rawdata:"+typeof(rawdata));
     //console.log(rawdata);
 
     // rawdata.forEach(function (arrayItem) {
@@ -66,11 +68,11 @@ class VisController {
     //     });
     // });
 
-    console.log("length:"+ rawdata.length);
+   //console.log("length:"+ rawdata.length);
     //console.log(rawdata[1]);
     for (var j=0; j < rawdata.length; j++){
       var arrayItem = rawdata[j]
-      var attr = arrayItem['key'];
+      var attr = arrayItem['key'];//attrs[j]['attr'];
       console.log(j);
       console.log(attr);
       var refinedata0 = arrayItem['value']
@@ -84,8 +86,8 @@ class VisController {
       });
     }
 
-    console.log(data);
-    console.log(xData);
+    // console.log(data);
+    // console.log(xData);
 
     this.container.innerHTML = '';
     const vizfiltDiv = document.createElement(`div`);
@@ -95,7 +97,7 @@ class VisController {
 
     var margin = {top: 20, right: 50, bottom: 30, left: 0},
           width = 400 - margin.left - margin.right,
-          height = 900- margin.top - margin.bottom;
+          height = 600- margin.top - margin.bottom;
 
     // var x = d3.scale.ordinal()
     //         .rangeRoundBands([0, width], .35);

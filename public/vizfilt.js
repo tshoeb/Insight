@@ -10,6 +10,7 @@ import { VisSchemasProvider } from 'ui/vis/editors/default/schemas';
 import { VizfiltRequestHandlerProvider } from './vizfilt_request_handler';
 
 import './vizfilt_options_controller';
+import './vizfilt.less';
 
 function VizfiltProvider(Private) {
   const VisFactory = Private(VisFactoryProvider);

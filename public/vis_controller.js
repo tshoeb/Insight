@@ -76,58 +76,67 @@ class VisController {
       console.log(j);
       console.log(attr);
       var refinedata0 = arrayItem['value']
+      var currentbar = {'attribute': attr};
       refinedata0.forEach(function (dataItem){
         var attr_val =  dataItem['key'];
         var doc_count = dataItem['doc_count'];
         xData.push(dataItem['key']);
-        var currentbar = {'attribute': attr};
+        // var currentbar = {'attribute': attr};
         currentbar[attr_val] = doc_count;
-        data.push(currentbar);
+        //data.push(currentbar);
       });
+      data.push(currentbar);
     }
 
-    // console.log(data);
+    console.log(data);
     // console.log(xData);
 
     this.container.innerHTML = '';
     const vizfiltDiv = document.createElement(`div`);
     vizfiltDiv.className = `myvis-div`;
 
+    vizfiltDiv.innerHTML = "<svg width=\"960\" height=\"500\"></svg>";
+
     vizfiltDiv.setAttribute('style', `height: 700px; width:700px;`);
+    this.container.appendChild(vizfiltDiv);
 
     var margin = {top: 20, right: 50, bottom: 30, left: 0},
-          width = 400 - margin.left - margin.right,
+          width = 500 - margin.left - margin.right,
           height = 600- margin.top - margin.bottom;
 
-    // var x = d3.scale.ordinal()
-    //         .rangeRoundBands([0, width], .35);
+    var svg = d3.select("svg"),
+      margin = {top: 20, right: 20, bottom: 30, left: 40},
+      width = +svg.attr("width") - margin.left - margin.right,
+      height = +svg.attr("height") - margin.top - margin.bottom;
+      // g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    // var y = d3.scale.linear()
-    //         .rangeRound([height, 0]);
 
-    // var color = d3.scale.category20();
+    // var svg = d3_svg.create(vizfiltDiv, {width: width + margin.left + margin.right, height: height + margin.top + margin.bottom});
 
-    // var xAxis = d3.svg.axis()
-    //         .scale(x)
-    //         .orient("bottom");
+    console.log("-----------------------")
+    console.log(svg)
+    console.log("-----------------------")
+    // set x scale
+    var x = d3.scaleBand()
+      .rangeRound([0, width])
+      .paddingInner(0.05)
+      .align(0.1);
 
-    var svg = d3_svg.create(vizfiltDiv, {width: width + margin.left + margin.right, height: height + margin.top + margin.bottom});
+    // set y scale
+    var y = d3.scaleLinear()
+      .rangeRound([height, 0]);
 
-    // svg.append("svg")
-    //     .attr("width", width + margin.left + margin.right)
-    //     .attr("height", height + margin.top + margin.bottom)
-    //    .append("g")
-    //     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    // set the colors
+    var z = d3.scaleOrdinal()
+      .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
 
+    // load the csv and create the chart
     var series = d3.stack()
       .keys(xData)
       .offset(d3.stackOffsetDiverging)
       (data);
 
-    // var svg = d3.select("svg"),
-    //     margin = {top: 20, right: 30, bottom: 30, left: 60},
-    //     width = +svg.attr("width"),
-    //     height = +svg.attr("height");
+    console.log(series);
 
     var x = d3.scaleBand()
         .domain(data.map(function(d) { return d.attribute; }))
@@ -138,13 +147,35 @@ class VisController {
         .domain([d3.min(series, stackMin), d3.max(series, stackMax)])
         .rangeRound([height - margin.bottom, margin.top]);
 
-    var z = d3.scaleOrdinal(d3.schemeCategory10);
+    var z = d3.scaleOrdinal()
+      .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+
+    var info = d3.scaleOrdinal()
+      .range(xData);
+
+    var tooltip = svg.append("g")
+      .attr("class", "tooltip")
+      .style("display", "none");
+        
+    tooltip.append("rect")
+      .attr("width", 60)
+      .attr("height", 20)
+      .attr("fill", "white")
+      .style("opacity", 0.5);
+
+    tooltip.append("text")
+      .attr("x", 30)
+      .attr("dy", "1.2em")
+      .style("text-anchor", "middle")
+      .attr("font-size", "12px")
+      .attr("font-weight", "bold");
 
     svg.append("g")
       .selectAll("g")
       .data(series)
       .enter().append("g")
-        .attr("fill", function(d) { return z(d.key); })
+        .attr("fill", function(d) { return z(d.key);})
+        .attr("attrval", function(d) { return info(d.key); })
       .selectAll("rect")
       .data(function(d) { return d; })
       .enter().append("rect")
@@ -152,6 +183,45 @@ class VisController {
         .attr("x", function(d) { return x(d.data.attribute); })
         .attr("y", function(d) { return y(d[1]); })
         .attr("height", function(d) { return y(d[0]) - y(d[1]); })
+        .attr("attrname", function(d) { return d.data.attribute;})
+      .on("mouseover", function(d, i) {
+        // console.log("Mouseover for tooltip");
+        tooltip.style("display", null);
+        var tempvals = d3.select(this.parentNode)._groups[0][0];
+        var attr_name = tempvals.childNodes[0].getAttribute("attrname");
+        var attr_val = tempvals.getAttribute("attrval");
+        console.log(attr_name);
+        console.log(attr_val);
+        d3.select(this)
+          .transition()
+          .duration(100)
+          .attr('r', 20)
+          .attr('fill', '#ff0000');
+        // console.log(d);
+        // console.log(i); 
+      })
+      .on("mouseout", function() { 
+        tooltip.style("display", "none");
+        d3.select(this)
+          .transition()
+          .duration(100)
+          .attr('r', 10)
+          .attr('fill', this.color);
+      })
+      .on("mousemove", function(d) {
+        // console.log("Tooltip Mouse move")
+        // console.log(d)
+        // console.log(this.x.baseVal.value);
+        var tempvals = d3.select(this.parentNode)._groups[0][0];
+        //var attr_name = tempvals.childNodes[0].getAttribute("attrname");
+        var attr_val = tempvals.getAttribute("attrval");
+        var xPosition = d3.mouse(this)[0] - 5;
+        var yPosition = d3.mouse(this)[1] - 5;
+        tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
+        tooltip.style("display", "contents");
+        // tooltip.attr("transform", "translate(" + this.x.baseVal.value - 30 + "," + this.y.baseVal.value + ")");
+        tooltip.select("text").text("Value: "+attr_val);//(d[1]-d[0]);
+      });
 
     svg.append("g")
         .attr("transform", "translate(0," + y(0) + ")")
@@ -169,64 +239,8 @@ class VisController {
       return d3.max(serie, function(d) { return d[1]; });
     }
 
-    //var svgRoot = this.el.getElementById("myvis-container-div");
 
-    //var div = d3.select(svgRoot);
-
-    // var dataIntermediate = xData.map(function (c) {
-    //     return data.map(function (d) {
-    //         console.log(d.attribute);
-    //         return {x: d.attribute, y: d[c]};
-    //     });
-    // });
-
-    // var dataStackLayout = d3.layout.stack()(dataIntermediate);
-
-    // x.domain(dataStackLayout[0].map(function (d) {
-    //     return d.x;
-    // }));
-
-    // y.domain([0,
-    //     d3.max(dataStackLayout[dataStackLayout.length - 1],
-    //             function (d) { 
-    //               //console.log(d.y);
-    //               return d.y0 + d.y;
-    //             })
-    //     ])
-    //   .nice();
-
-    // console.log(svg.selectAll(".stack"));
-
-    // var layer = svg.selectAll(".stack")
-    //         .data(dataStackLayout)
-    //         .enter().append("g")
-    //         .attr("class", "stack")
-    //         .style("fill", function (d, i) {
-    //             return color(i);
-    //         });
-
-    // layer.selectAll("rect")
-    //         .data(function (d) {
-    //             return d;
-    //         })
-    //         .enter().append("rect")
-    //         .attr("x", function (d) {
-    //             return x(d.x);
-    //         })
-    //         .attr("y", function (d) {
-    //             return y(d.y + d.y0);
-    //         })
-    //         .attr("height", function (d) {
-    //             return y(d.y0) - y(d.y + d.y0);
-    //         })
-    //         .attr("width", x.rangeBand());
-
-    // svg.append("g")
-    //     .attr("class", "axis")
-    //     .attr("transform", "translate(0," + height + ")")
-    //    .call(xAxis);
-
-    this.container.appendChild(vizfiltDiv);
+    
     return new Promise(resolve => {
       resolve('when done rendering');
     });

@@ -52,16 +52,43 @@ export class QueryProcessor {
 	}
 
 	async getdata(attributes, tempdata, min, max){
-		var temp = [];
+		//var temp = [];
 		for (const current_value of attributes) {
 		    var current_attribute = current_value.attr;
 		    var current_topn = current_value.topn;
 
-			await this._runes(current_attribute, current_topn, tempdata, min, max);
+		    var fqdata = [];
+		    var exlist = [];
+
+			//fqdata = this._runes(current_attribute, current_topn, min, max);
+			await this._runes(current_attribute, current_topn, min, max).then(function(result) {
+			    fqdata = result;
+			});
+			// console.log("i am fqdata");
+			// console.log(fqdata);
+			exlist = this.jsoner(fqdata, current_attribute);
+			// console.log("i am exlist");
+			// console.log(exlist);
+			await this._runes_others(current_attribute, fqdata, min, max, exlist, tempdata);
 		}
 	}
 
-	async _runes(attr,topn, tempdata, min, max){
+	jsoner(fqdata, current_attribute){
+		var exlist = [];
+		for (var j=0; j < fqdata.length; j++){
+			var bucketitem = fqdata[j];
+			var attr_key = bucketitem['key'];
+			var tempdict = {};
+			tempdict[current_attribute] = attr_key;
+			var tempquery = {};
+			tempquery["match"] = tempdict;
+			exlist.push(tempquery);
+		}
+		return exlist;
+	}
+
+	async _runes(attr,topn, min, max){
+		var datatopass = [];
 		var temp = await this.es.search({
 			"index": this.index,
 		  	"body": {
@@ -88,10 +115,59 @@ export class QueryProcessor {
 			    }
 		  	}
 		}).then(function(result) {
-			console.log("Data Pusher")
+			//console.log("Data Pusher")
+			//fqdata = result['aggregations']['attr']['buckets'];
+			datatopass = result['aggregations']['attr']['buckets'];
+			//console.log("fq-inner");
+			//console.log(fqdata);
+			// tempdata.push({
+			//     key: attr,
+			//     value: result['aggregations']['attr']['buckets']
+			// });
+		});
+		return datatopass;
+	}
+
+	async _runes_others(attr, fqdata, min, max, exlist, tempdata){
+		var temp = await this.es.search({
+			"index": this.index,
+		  	"body": {
+		  		"size": 0,
+		  		"query": {
+		            "bool": {
+		            	"must_not": exlist,//[
+				          //{ "match": { "src_port" : "37182" }},
+				          //{ "match": { "src_port" : "45406" }}
+				        //],
+		                "filter": {
+		                    "range": {
+		                        "epoch": {
+		                            "gte": min,
+		                            "lte": max
+		                        }
+		                    }
+		                }
+		            }
+		        },
+		  		"aggs" : {
+			        "attr" : {
+			            "terms" : {
+			                "field" : attr,
+			                "size" : 2147483647
+			            }
+			        }
+			    }
+		  	}
+		}).then(function(result) {
+			//console.log("Other Data Pusher")
+			var tempotherdict = {};
+			tempotherdict["key"] = attr+"_others";
+			tempotherdict["doc_count"] = result['hits']['total'];
+			fqdata.push(tempotherdict);
+
 			tempdata.push({
 			    key: attr,
-			    value: result['aggregations']['attr']['buckets']
+			    value: fqdata
 			});
 		});
 	}

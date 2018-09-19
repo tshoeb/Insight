@@ -1,4 +1,5 @@
 import { HoverProcessor } from './data_model/hover_processor';
+import { QueryProcessor } from './data_model/query_processor';
 
 const d3 = require('d3');
 const d3_svg = require('d3-svg');
@@ -104,7 +105,7 @@ class VisController {
     vizfiltDiv.setAttribute('style', `height: 700px; width:600px;`);
     this.container.appendChild(vizfiltDiv);
 
-    var margin = {top: 20, right: 50, bottom: 30, left: 0},
+    var margin = {top: 20, right: 50, bottom: 30, left: 50},
           width = 500 - margin.left - margin.right,
           height = 700- margin.top - margin.bottom;
 
@@ -195,7 +196,7 @@ class VisController {
           .transition()
           .duration(100)
           .attr('r', 20)
-          .attr('fill', '#ff0000');
+          .attr('fill', '#DAA520');
 
         if (attrs.length > 1) {
 
@@ -211,8 +212,8 @@ class VisController {
           var attr_name = tempvals.childNodes[numtouse].getAttribute("attrname");
           var attr_val = tempvals.getAttribute("attrval");
 
-          console.log(attr_name);
-          console.log(attr_val);
+          // console.log(attr_name);
+          // console.log(attr_val);
           
           const hp = new HoverProcessor(visData);
           var relations = [];
@@ -229,59 +230,56 @@ class VisController {
                 var secondgnode = (allthenodes.childNodes[q]).childNodes[s];
                 var node_attrname = secondgnode.getAttribute("attrname");
                 if(node_attrname != attr_name){
-                  console.log(node_attrname);
-                  console.log(relation_count);
+                  
                   var relation_count = relations[node_attrname][node_attrval];
-                  if (relation_count != 0){
-                    var node_height = secondgnode.getAttribute("height");
-                    var node_width = secondgnode.getAttribute("width");
-                    var node_x = secondgnode.getAttribute("x");
-                    var node_y = secondgnode.getAttribute("y");
+                  if (Number(relation_count) != 0){
+                    var node_height = Number(secondgnode.getAttribute("height"));
+                    var node_width = Number(secondgnode.getAttribute("width"));
+                    var node_x = Number(secondgnode.getAttribute("x"));
+                    var node_y = Number(secondgnode.getAttribute("y"));
 
-                    var new_height = Number(node_y)+(Number(node_height)*Number(relation_count));
+                    var new_height = (Number(node_height)*Number(relation_count));;
+
+                    // if (relation_count == 1){
+                    //   new_height = Number(node_height);
+                    // } else{
+                    //   new_height = (Number(node_height)*Number(relation_count));
+                    // }
+                
+                    console.log(node_attrname);
+                    console.log(node_attrval);
+                    console.log(relation_count);
                     console.log(new_height);
 
-                    // svg.append("g")
-                    //   .selectAll("g")
-                    //   .data(series)
-                    //   .enter().append("g")
-                    //     .attr("fill", 'red')
-                    //   .selectAll("rect")
-                    //   .data(function(d) { return d; })
-                    //   .enter().append("rect")
-                    //     .attr("width", node_width)
-                    //     .attr("x", node_x)
-                    //     .attr("y", node_y)
-                    //     .attr("height", new_height);
+                    svg.append("line")
+                      .attr("x1", node_x)
+                      .attr("y1", node_y+node_height)
+                      .attr("x2", node_x)
+                      .attr("y2", node_y+node_height-new_height)
+                      .attr("stroke-width", 1.5)
+                      .attr("stroke", "red");
+                    svg.append("line")
+                      .attr("x1", node_x)
+                      .attr("y1", node_y+node_height-new_height)
+                      .attr("x2", node_x+node_width)
+                      .attr("y2", node_y+node_height-new_height)
+                      .attr("stroke-width", 1.5)
+                      .attr("stroke", "red");
+                    svg.append("line")
+                      .attr("x1", node_x+node_width)
+                      .attr("y1", node_y+node_height-new_height)
+                      .attr("x2", node_x+node_width)
+                      .attr("y2", node_y+node_height)
+                      .attr("stroke-width", 1.5)
+                      .attr("stroke", "red");
+                    svg.append("line")
+                      .attr("x1", node_x+node_width)
+                      .attr("y1", node_y+node_height)
+                      .attr("x2", node_x)
+                      .attr("y2", node_y+node_height)
+                      .attr("stroke-width", 1.5)
+                      .attr("stroke", "red");
 
-                    svg.append("line")
-                      .attr("x1", node_x)
-                      .attr("y1", node_y)
-                      .attr("x2", node_x)
-                      .attr("y2", new_height)
-                      .attr("stroke-width", 1)
-                      .attr("stroke", "red");
-                    svg.append("line")
-                      .attr("x1", node_x)
-                      .attr("y1", new_height)
-                      .attr("x2", Number(node_x)+Number(node_width))
-                      .attr("y2", new_height)
-                      .attr("stroke-width", 1)
-                      .attr("stroke", "red");
-                    svg.append("line")
-                      .attr("x1", Number(node_x)+Number(node_width))
-                      .attr("y1", new_height)
-                      .attr("x2", Number(node_x)+Number(node_width))
-                      .attr("y2", node_y)
-                      .attr("stroke-width", 1)
-                      .attr("stroke", "red");
-                    svg.append("line")
-                      .attr("x1", Number(node_x)+Number(node_width))
-                      .attr("y1", node_y)
-                      .attr("x2", node_x)
-                      .attr("y2", node_y)
-                      .attr("stroke-width", 1)
-                      .attr("stroke", "red");
 
                   }
                 }
@@ -322,8 +320,30 @@ class VisController {
         tooltip.style("display", "contents");
         // tooltip.attr("transform", "translate(" + this.x.baseVal.value - 30 + "," + this.y.baseVal.value + ")");
         tooltip.select("text").text("Value: "+attr_val);//(d[1]-d[0]);
-      });
+      })
+      .on("click", function(){
+        var tempvals = d3.select(this.parentNode)._groups[0][0];
+        var allthenodes=(this.parentNode).parentNode;
+        var numtouse = 0;
+        for (var p=0; p < attrs.length; p++){
+          var heightcheck = tempvals.childNodes[p].getAttribute("height");
+          if (heightcheck != "NaN"){
+            numtouse = p;
+          }
+        }
+        var attr_name = tempvals.childNodes[numtouse].getAttribute("attrname");
+        var attr_val = tempvals.getAttribute("attrval");
 
+        console.log(attr_name);
+        console.log(attr_val);
+
+        var tempdict = {}
+        tempdict['attr'] = attr_name;
+        tempdict['key'] = attr_val;
+
+        puttingthefilter(tempdict);
+      });
+    
     svg.append("g")
         .attr("transform", "translate(0," + y(0) + ")")
         .call(d3.axisBottom(x));
@@ -370,6 +390,13 @@ class VisController {
       return d3.max(serie, function(d) { return d[1]; });
     }
 
+    var puttingthefilter = function(talal, tempdict) {
+
+      // console.log("TALALAL INSIDEEE")
+      // console.log(talal.vis.params)
+      talal.vis.params.filtervals.push(tempdict);
+      $("#magicbutton").click()
+    }.bind(null, this)
 
     
     return new Promise(resolve => {

@@ -28,11 +28,12 @@ export class HoverProcessor {
 			    	var dataItem = refinedata0[p];
 			    //refinedata0.forEach(async function (dataItem){
 			        var c_attr_val =  dataItem['key'];
-			        if (String(c_attr_val).includes('others') == false){
+			        var filterlist = [];
+			        if (String(c_attr_val).includes('others') == false && String(c_attr_val).includes('_') == false){
 				        var exlist = this.jsoner(attr_name, attr_val, c_attr_name, c_attr_val);
 				        //console.log(exlist);
 				        var doc_count = "";
-				        await this._runes_relation(c_attr_name, exlist, min, max).then(function(result) {
+				        await this._runes_relation(c_attr_name, exlist, min, max, filterlist).then(function(result) {
 						    doc_count = result;
 						});
 				        var og_doc_count = dataItem['doc_count'];
@@ -40,6 +41,16 @@ export class HoverProcessor {
 				        // var currentbar = {'attribute': attr};
 				        currentbar[String(c_attr_val)] = doc_count/parseFloat(og_doc_count);
 				        //data.push(currentbar);
+				    }
+				    if (String(c_attr_val).includes('others') == true){
+				    	filterlist = this.jsoner_others(c_attr_name);
+				    	var exlist = this.jsoner(attr_name, attr_val, "none", c_attr_val);
+				        var doc_count = "";
+				        await this._runes_relation(c_attr_name, exlist, min, max, filterlist).then(function(result) {
+						    doc_count = result;
+						});
+				        var og_doc_count = dataItem['doc_count'];
+				        currentbar[String(c_attr_val)] = (doc_count/parseFloat(og_doc_count));//*100.0;
 				    }
 			    //});
 				}
@@ -60,16 +71,40 @@ export class HoverProcessor {
 		tempquery["match"] = tempdict;
 		exlist.push(tempquery);
 
-		var tempdict2 = {};
-		tempdict2[c_attr_name] = c_attr_val;
-		var tempquery2 = {};
-		tempquery2["match"] = tempdict2;
-		exlist.push(tempquery2);
+		if(c_attr_name != "none"){
+			var tempdict2 = {};
+			tempdict2[c_attr_name] = c_attr_val;
+			var tempquery2 = {};
+			tempquery2["match"] = tempdict2;
+			exlist.push(tempquery2);
+		}
 
 		return exlist;
 	}
 
-	async _runes_relation(c_attr_name, exlist, min, max){
+	jsoner_others(c_attr_name){
+		var filterlist = [];
+		for (var a=0; a < this.ogdata.length; a++){
+			if (c_attr_name == this.ogdata[a]['key']){
+				var ogattrarray = this.ogdata[a]['value'];
+			}
+		}
+
+		for (var g=0; g < ogattrarray.length; g++){
+			if (String(ogattrarray[g]['key']).includes('others') == false){
+				//console.log(ogattrarray[g]['key']);
+				var tempdict = {};
+				tempdict[c_attr_name] = ogattrarray[g]['key'];
+				var tempquery = {};
+				tempquery["match"] = tempdict;
+				filterlist.push(tempquery);
+			}
+		}
+
+		return filterlist;
+	}
+
+	async _runes_relation(c_attr_name, exlist, min, max, filterlist){
 		var datatogive = "";
 
 		var temp = await this.es.search({
@@ -79,6 +114,7 @@ export class HoverProcessor {
 		  		"query": {
 		            "bool": {
 		            	"must": exlist,
+		            	"must_not": filterlist,
 		                "filter": {
 		                    "range": {
 		                        "epoch": {

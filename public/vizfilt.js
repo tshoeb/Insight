@@ -28,7 +28,7 @@ function VizfiltProvider(Private) {
         index: 'choose',
         attributes: [],
         realdata:[],
-        checker: false,
+        filtervals: [],
       },
     },
     editorConfig: {

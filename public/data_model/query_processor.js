@@ -120,7 +120,7 @@ export class QueryProcessor {
 		  	"body": {
 		  		"query": {
 		            "bool": {
-		            	"must_not": filtervals,
+		            	//"must_not": filtervals,
 		                "filter": {
 		                    "range": {
 		                        "epoch": {

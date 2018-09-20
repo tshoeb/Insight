@@ -181,6 +181,7 @@ class VisController {
       .enter().append("g")
         .attr("fill", function(d) { return z(d.key);})
         .attr("attrval", function(d) { return info(d.key); })
+        .attr("class", function(d) {  if(String(info(d.key)).substring(0,1) == "_"){ return "filtered";} else{ return "normal";}})
       .selectAll("rect")
       .data(function(d) { return d; })
       .enter().append("rect")
@@ -351,6 +352,41 @@ class VisController {
     svg.append("g")
         .attr("transform", "translate(" + margin.left + ",0)")
         .call(d3.axisLeft(y));
+
+    var filter_y=0;
+    var filter_height= 0;
+
+    d3.selectAll(".filtered").each(function() {
+      console.log(this.childNodes.length);
+      for (var p=0; p < this.childNodes.length; p++){
+        var heightcheck = this.childNodes[p].getAttribute("height");
+        if (heightcheck != "NaN"){
+          if (Number(this.childNodes[p].getAttribute("y")) > filter_y){
+            filter_y = Number(this.childNodes[p].getAttribute("y"));
+            filter_height = Number(this.childNodes[p].getAttribute("height"))
+          }
+        }
+      }
+      // console.log(Number(d3.select(this).attr("y")));
+      // if (Number(d3.select(this).attr("y")) > filter_y){
+      //   filter_y = d3.select(this).attr("y");
+      // }
+    });
+
+    console.log("i am line y");
+    console.log(filter_y);
+    if (filter_y > 0 ){
+      svg.append("line")
+      .attr("x1", 0)
+      .attr("y1", filter_y+filter_height)
+      .attr("x2", 900)
+      .attr("y2", filter_y+filter_height)
+      .attr("stroke-width", 1.5)
+      .attr("stroke", "black");
+    }
+
+
+
 
     // svg.append("g")
     //   .selectAll("g")

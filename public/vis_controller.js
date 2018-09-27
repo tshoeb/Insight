@@ -1,8 +1,10 @@
 import { HoverProcessor } from './data_model/hover_processor';
 import { QueryProcessor } from './data_model/query_processor';
+import { FilterProcessor } from './data_model/filter_processor';
 
 const d3 = require('d3');
 const d3_svg = require('d3-svg');
+const d3_tip = require('d3-tip');
 
 //https://github.com/53seven/d3-svg
 
@@ -93,7 +95,7 @@ class VisController {
       data.push(currentbar);
     }
 
-    console.log(data);
+    //console.log(data);
     // console.log(xData);
 
     this.container.innerHTML = '';
@@ -110,7 +112,7 @@ class VisController {
           height = 700- margin.top - margin.bottom;
 
     var svg = d3.select("svg"),
-      margin = {top: 20, right: 20, bottom: 30, left: 40},
+      margin = {top: 20, right: 20, bottom: 30, left: 60},
       width = +svg.attr("width") - margin.left - margin.right,
       height = +svg.attr("height") - margin.top - margin.bottom;
       // g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -118,9 +120,9 @@ class VisController {
 
     // var svg = d3_svg.create(vizfiltDiv, {width: width + margin.left + margin.right, height: height + margin.top + margin.bottom});
 
-    console.log("-----------------------")
-    console.log(svg)
-    console.log("-----------------------")
+    // console.log("-----------------------")
+    // console.log(svg)
+    // console.log("-----------------------")
     // // set x scale
     // var x = d3.scaleBand()
     //   .rangeRound([0, width])
@@ -134,6 +136,17 @@ class VisController {
     // // set the colors
     // var z = d3.scaleOrdinal()
     //   .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+
+    // console.log("==============dsfsafasdfadsfadf======================")
+    // console.log(xData)
+    // console.log(data)
+    // for (var i = 0; i < data.length; i++)
+    //   for (var j = 0; j < xData.length; j++)
+    //     if (data[i][xData[j]] == undefined)
+    //       data[i][xData[j]] = 0;
+
+    // console.log("==============dsfsafasdfadsfadf======================")
+
 
     // load the csv and create the chart
     var series = d3.stack()
@@ -161,6 +174,16 @@ class VisController {
     var tooltip = svg.append("g")
       .attr("class", "tooltip")
       .style("display", "none");
+
+    // var tip = d3_tip()
+    //   .attr('class', 'd3-tip')
+    //   .offset([-10, 0])
+    //   .html(function(d) {
+    //     console.log("oh wow");
+    //     return "<strong>Value:</strong> <span style='color:red'>" + d.data.attribute + "</span>";
+    //   });
+
+    // svg.call(tip);
         
     tooltip.append("rect")
       .attr("width", 60)
@@ -192,7 +215,8 @@ class VisController {
         .attr("attrname", function(d) { return d.data.attribute;})
       .on("mouseover", async function(d, i) {
         // console.log("Mouseover for tooltip");
-        tooltip.style("display", null);
+        //tip.show
+        //tooltip.style("display", null);
         d3.select(this)
           .transition()
           .duration(100)
@@ -300,6 +324,7 @@ class VisController {
         // console.log(i); 
       })
       .on("mouseout", function() {
+        //tip.hide
         d3.selectAll("line").remove(); 
         tooltip.style("display", "none");
         d3.select(this)
@@ -311,18 +336,28 @@ class VisController {
       .on("mousemove", function(d) {
         // console.log("Tooltip Mouse move")
         // console.log(d)
-        // console.log(this.x.baseVal.value);
+        // console.log(this);
+        // console.log(this.y.baseVal.value);
         var tempvals = d3.select(this.parentNode)._groups[0][0];
         //var attr_name = tempvals.childNodes[0].getAttribute("attrname");
         var attr_val = tempvals.getAttribute("attrval");
-        var xPosition = d3.mouse(this)[0] - 5;
-        var yPosition = d3.mouse(this)[1] - 5;
-        tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
+        //console.log(this.parentNode);
+        // this.parentNode.append("text")
+        //   .attr("font-size", "2em")
+        //   .attr("color", "black")
+        //   .text(attr_val);
+        // var xPosition = d3.mouse(this)[0] - 5;
+        // var yPosition = d3.mouse(this)[1] - 5;
+        // tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
         tooltip.style("display", "contents");
-        // tooltip.attr("transform", "translate(" + this.x.baseVal.value - 30 + "," + this.y.baseVal.value + ")");
+        tooltip.attr("transform", "translate(" + (Number(this.x.baseVal.value) - 30) + "," + this.y.baseVal.value + ")");
         tooltip.select("text").text("Value: "+attr_val);//(d[1]-d[0]);
       })
       .on("click", function(){
+
+        const fp = new FilterProcessor();
+        fp.getfilters();
+
         var tempvals = d3.select(this.parentNode)._groups[0][0];
         var allthenodes=(this.parentNode).parentNode;
         var numtouse = 0;
@@ -353,37 +388,37 @@ class VisController {
         .attr("transform", "translate(" + margin.left + ",0)")
         .call(d3.axisLeft(y));
 
-    var filter_y=0;
-    var filter_height= 0;
+    // var filter_y=0;
+    // var filter_height= 0;
 
-    d3.selectAll(".filtered").each(function() {
-      console.log(this.childNodes.length);
-      for (var p=0; p < this.childNodes.length; p++){
-        var heightcheck = this.childNodes[p].getAttribute("height");
-        if (heightcheck != "NaN"){
-          if (Number(this.childNodes[p].getAttribute("y")) > filter_y){
-            filter_y = Number(this.childNodes[p].getAttribute("y"));
-            filter_height = Number(this.childNodes[p].getAttribute("height"))
-          }
-        }
-      }
-      // console.log(Number(d3.select(this).attr("y")));
-      // if (Number(d3.select(this).attr("y")) > filter_y){
-      //   filter_y = d3.select(this).attr("y");
-      // }
-    });
+    // d3.selectAll(".filtered").each(function() {
+    //   console.log(this.childNodes.length);
+    //   for (var p=0; p < this.childNodes.length; p++){
+    //     var heightcheck = this.childNodes[p].getAttribute("height");
+    //     if (heightcheck != "NaN"){
+    //       if (Number(this.childNodes[p].getAttribute("y")) > filter_y){
+    //         filter_y = Number(this.childNodes[p].getAttribute("y"));
+    //         filter_height = Number(this.childNodes[p].getAttribute("height"))
+    //       }
+    //     }
+    //   }
+    //   // console.log(Number(d3.select(this).attr("y")));
+    //   // if (Number(d3.select(this).attr("y")) > filter_y){
+    //   //   filter_y = d3.select(this).attr("y");
+    //   // }
+    // });
 
-    console.log("i am line y");
-    console.log(filter_y);
-    if (filter_y > 0 ){
-      svg.append("line")
-      .attr("x1", 0)
-      .attr("y1", filter_y+filter_height)
-      .attr("x2", 900)
-      .attr("y2", filter_y+filter_height)
-      .attr("stroke-width", 1.5)
-      .attr("stroke", "black");
-    }
+    // console.log("i am line y");
+    // console.log(filter_y);
+    // if (filter_y > 0 ){
+    //   svg.append("line")
+    //   .attr("x1", 0)
+    //   .attr("y1", filter_y+filter_height)
+    //   .attr("x2", 900)
+    //   .attr("y2", filter_y+filter_height)
+    //   .attr("stroke-width", 1.5)
+    //   .attr("stroke", "black");
+    // }
 
 
 

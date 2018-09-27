@@ -19,18 +19,21 @@ module.controller('VizfiltOptionsController', ($scope, client, esFactory) => {
 	$scope.choices = [{}];
 
 	$scope.addNewChoice = function() {
+		console.log("what is happenin??");
 	    var newItemNo = $scope.choices.length+1;
 	    $scope.choices.push({});
 	 };
 
-	$scope.removeChoice = function() {
-	    var lastItem = $scope.choices.length-1;
-	    $scope.choices.splice(lastItem);
+	$scope.removeChoice = function(incoming) {
+		// console.log(incoming);
+	 //    var lastItem = $scope.choices.length-1;
+	    $scope.choices.splice(incoming,1);
 	};
 
-	$scope.complete = function(){
+	$scope.complete = function() {
+		console.log("what is happenin???");
 		$scope.vis.params.attributes = $scope.choices;
-	}
+	};
 
 	client.cat.indices({
 		h: ['index']
@@ -70,6 +73,10 @@ module.controller('VizfiltOptionsController', ($scope, client, esFactory) => {
 		});
 		$scope.selected = true;
 		//console.log("it is working too");
+	};
+
+	$scope.clearfilter = function(){
+		$scope.vis.params.filtervals = [];
 	};
 
 });

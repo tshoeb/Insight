@@ -58,7 +58,7 @@ export class HoverProcessor {
 		    	//data.push(currentbar);
 		    }
 	    }
-	    console.log(data);
+	    //console.log(data);
     	return data;
 	}
 

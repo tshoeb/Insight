@@ -23,7 +23,7 @@ const lucenequeryparser = require('lucene-query-parser');
 
 export class QueryProcessor {
 
-	constructor(index, attributes, realdata, filtervals, timefilter, es, dashboardContext, getAppState){
+	constructor(index, attributes, realdata, filtervals, shouldvals, timefilter, es, dashboardContext, filterBar){
 		this.index = index;
 		this.attributes= attributes;
 		this.realdata = realdata;
@@ -32,7 +32,8 @@ export class QueryProcessor {
 		this.es = es;
 		this.dashboardContext = dashboardContext();
 		this.filtervals = filtervals;
-		this.getAppState = getAppState;
+		this.shouldvals = shouldvals;
+		this.filterBar = filterBar;
 		//this.queryBarQuery = queryBarQuery;
 	}
 
@@ -54,7 +55,7 @@ export class QueryProcessor {
 		var max = timeattrs.max.valueOf();
 		//console.log(this.dashboardContext());
 
-		const appState = this.getAppState();
+		//const appState = this.getAppState();
 		// if (this.filtervals.length != 0){
 		// 	appState.query = this.filtervals[0]['attr']+":"+this.filtervals[0]['key'];
 		// }
@@ -62,14 +63,18 @@ export class QueryProcessor {
 		// const query = luceneStringToDsl(queryBarQuery.query);
 		// console.log("^^^^^^^^^^");
 		// console.log(query);
-		await this.getdata(this.attributes, tempdata, min, max, this.filtervals, this.dashboardContext);
+		await this.getdata(this.attributes, tempdata, min, max, this.filtervals, this.shouldvals, this.dashboardContext);
 		this.realdata = tempdata;
 	}
 
-	async getdata(attributes, tempdata, min, max, filtervals, dashboardContext){
+	async getdata(attributes, tempdata, min, max, filtervals, shouldvals, dashboardContext){
 		//var temp = [];
 		var filterlist = [];
-		var filtervals_json = this.jsoner_filter(filtervals, filterlist, dashboardContext);
+		var shouldlist = [];
+		this.filterBarData();
+		this.querycourier(dashboardContext);
+		var filtervals_json = this.jsoner_filter(filtervals, filterlist);
+		var shouldvals_json = this.jsoner_filter(shouldvals, shouldlist);
 		for (const current_value of attributes) {
 		    var current_attribute = current_value.attr;
 		    var current_topn = current_value.topn;
@@ -77,20 +82,20 @@ export class QueryProcessor {
 		    var fqdata = [];
 		    var exlist = [];
 		    
-		    if (filtervals.length == 0){
-				await this._runes(current_attribute, current_topn, min, max, fqdata, filtervals_json)
+		    if (filtervals.length == 0 && shouldvals.length == 0){
+				await this._runes(current_attribute, current_topn, min, max, fqdata, filtervals_json, shouldvals_json, 0)
 				exlist = this.jsoner(fqdata, current_attribute);
-				await this._runes_others(current_attribute, fqdata, min, max, exlist, filtervals_json);
+				await this._runes_others(current_attribute, fqdata, min, max, exlist, filtervals_json, shouldvals_json, 0);
 			}
 
-			if (filtervals.length != 0){
+			if (filtervals.length != 0 || shouldvals.length != 0){
 
-				if (filterlist.includes(current_attribute)){ 
-					await this._runes_filter(current_attribute, fqdata, min, max, filtervals_json);
+				if (filterlist.includes(current_attribute) || shouldlist.includes(current_attribute)){ 
+					await this._runes_filter(current_attribute, fqdata, min, max, filtervals_json, shouldvals_json, shouldvals.length > 0 ? 1 : 0);
 				} else{
-					await this._runes(current_attribute, current_topn, min, max, fqdata, filtervals_json)
+					await this._runes(current_attribute, current_topn, min, max, fqdata, filtervals_json, shouldvals_json, shouldvals.length > 0 ? 1 : 0)
 					exlist = this.jsoner(fqdata, current_attribute);
-					await this._runes_others(current_attribute, fqdata, min, max, exlist, filtervals_json);
+					await this._runes_others(current_attribute, fqdata, min, max, exlist, filtervals_json, shouldvals_json, shouldvals.length > 0 ? 1 : 0);
 				}
 				
 			}
@@ -100,6 +105,18 @@ export class QueryProcessor {
 			    value: fqdata
 			});
 		}
+	}
+
+	filterBarData(){
+  		var filterbardata = this.filterBar.getFilters();
+  		console.log("yallah yallah")
+  		console.log(filterbardata);
+  		for (var j=0; j < filterbardata.length; j++){
+  			var tempdict = {}
+	        tempdict['attr'] = filterbardata[j]['meta']['key'];
+	        tempdict['key'] = filterbardata[j]['meta']['value'];
+	        this.filtervals.push(tempdict);
+  		}
 	}
 
 	jsoner(fqdata, current_attribute){
@@ -116,23 +133,68 @@ export class QueryProcessor {
 		return exlist;
 	}
 
-	jsoner_filter(filtervals, filterlist, dashboardContext){
+	querycourier(dashboardContext){
 		var fromquerybar = dashboardContext['bool']['must'][0];
 		if (fromquerybar['query_string'] != undefined){
-			filtervals=[];
 			var qd = fromquerybar['query_string']['query'];
 			var results = lucenequeryparser.parse(qd);
-			var tempdict = {}
-	        tempdict['attr'] = results['left']['field'];
-	        tempdict['key'] = results['left']['term'];
-	        filtervals.push(tempdict);
-	        if(results['right']){
+			this.lcparser(results);
+		}
+	}
+
+	lcparser(results){
+		var tempdict = {}
+        tempdict['attr'] = results['left']['field'];
+        tempdict['key'] = results['left']['term'];
+        if(results['right']){
+        	if(results['operator'] == "AND"){
+        		this.filtervals.push(tempdict);
+        	}
+        	if(results['operator'] == "OR"){
+        		this.shouldvals.push(tempdict);
+        	}
+	        if (results['right']['operator'] != undefined){
+	        	if(results['right']['operator'] == "AND"){
+	        		this.lcparser(results['right']);
+	        	}
+	        	if(results['right']['operator'] == "OR"){
+					this.lcparsershould(results['right']);
+	        	}
+	        } else{
 	        	var tempdict2 = {}
 		        tempdict2['attr'] = results['right']['field'];
 		        tempdict2['key'] = results['right']['term'];
-		        filtervals.push(tempdict2);
+		        if(results['operator'] == "AND"){
+        			this.filtervals.push(tempdict2);
+	        	}
+	        	if(results['operator'] == "OR"){
+	        		this.shouldvals.push(tempdict2);
+	        	}
 	        }
-		}
+	    } else {
+	    	this.filtervals.push(tempdict);
+	    }
+	}
+
+	lcparsershould(results){
+		var tempdict = {}
+        tempdict['attr'] = results['left']['field'];
+        tempdict['key'] = results['left']['term'];
+        this.shouldvals.push(tempdict);
+        if(results['right']){
+	        if (results['right']['operator'] != undefined){
+	        	this.lcparsershould(results['right']);
+	        } else{
+	        	var tempdict2 = {}
+		        tempdict2['attr'] = results['right']['field'];
+		        tempdict2['key'] = results['right']['term'];
+		        this.shouldvals.push(tempdict2);
+	        }
+	    } 
+	}
+
+
+	jsoner_filter(filtervals, filterlist){
 		var filtervals_json_text = "";
 		var filtervals_json = [];
 		for (var j=0; j < filtervals.length; j++){
@@ -155,17 +217,21 @@ export class QueryProcessor {
 		// 	return filtervals_json;
 		// }
 		//console.log(filtervals_json);
+		console.log("printing filter stuff")
+		console.log(filterlist);
 		console.log(filtervals_json);
 		return filtervals_json;
 	}
 
-	async _runes(attr, topn, min, max, fqdata, filtervals){
+	async _runes(attr, topn, min, max, fqdata, filtervals, shouldvals, mnum){
 		var datatopass = [];
 		var temp = await this.es.search({
 			"index": this.index,
 		  	"body": {
 		  		"query": {
 		            "bool": {
+		            	"minimum_should_match": mnum,
+		            	"should": shouldvals,
 		            	"must": filtervals,
 		                "filter": {
 		                    "range": {
@@ -200,14 +266,16 @@ export class QueryProcessor {
 		});
 	}
 
-	async _runes_others(attr, fqdata, min, max, exlist, filtervals){//, tempdata){
+	async _runes_others(attr, fqdata, min, max, exlist, filtervals, shouldvals, mnum){//, tempdata){
 		var temp = await this.es.search({
 			"index": this.index,
 		  	"body": {
 		  		"size": 0,
 		  		"query": {
 		            "bool": {
+		            	"minimum_should_match": mnum,
 		            	"must_not": exlist,
+		            	"should": shouldvals,
 		            	"must": filtervals,
 		                "filter": {
 		                    "range": {
@@ -236,13 +304,15 @@ export class QueryProcessor {
 		});
 	}
 
-	async _runes_filter(attr, fqdata, min, max, filtervals){
+	async _runes_filter(attr, fqdata, min, max, filtervals, shouldvals, mnum){
 		var temp = await this.es.search({
 			"index": this.index,
 		  	"body": {
 		  		"size": 0,
 		  		"query": {
 		            "bool": {
+		            	"minimum_should_match": mnum,
+		            	"should": shouldvals,
 		            	"must": filtervals,//[
 				          //{ "match": { "src_port" : "37182" }},
 				          //{ "match": { "src_port" : "45406" }}

@@ -1,4 +1,10 @@
 import { uiModules } from 'ui/modules';
+import { FilterManagerProvider } from 'ui/filter_manager';
+import * as filterActions from 'ui/doc_table/actions/filter';
+import 'ui/query_bar';
+import { FilterBarQueryFilterProvider } from 'ui/filter_bar/query_filter';
+import { StateProvider } from 'ui/state_management/state';
+
 
 const module = uiModules.get('kibana/vizfilt', ['kibana'], ['elasticsearch']);
 
@@ -10,13 +16,22 @@ module.service('client', function (esFactory) {
   });
 });
 
-module.controller('VizfiltOptionsController', ($scope, client, esFactory) => {
+module.controller('VizfiltOptionsController', ($scope, client, esFactory, Private) => {
+	const filterManager = Private(FilterManagerProvider);
+	const queryFilter = Private(FilterBarQueryFilterProvider);
+	const State = Private(StateProvider);
+
 	var indexlist = [];
 	$scope.attr = "";
 	$scope.topn = 0;
 	$scope.compdata = [];
 	$scope.selected = false;
 	$scope.choices = [{}];
+
+	console.log($scope.indexPattern);
+
+	//$scope.indexPattern.popularizeField("ttl", 1);
+    //filterActions.addFilter("ttl", 234, "AND", "1d1efb80-2b83-11e8-8eff-dba1c3546b2b", $scope.state, filterManager);
 
 	$scope.addNewChoice = function() {
 		console.log("what is happenin??");
@@ -66,6 +81,7 @@ module.controller('VizfiltOptionsController', ($scope, client, esFactory) => {
 			for (var key in body) {
 				if(key != '.kibana'){
 					console.log(key);
+					//$scope.indexPattern = key;
 					var termdic = (body[key]['mappings']['requests']['properties'])
 					$scope.termlist = Object.keys(termdic);
 				}
@@ -77,6 +93,18 @@ module.controller('VizfiltOptionsController', ($scope, client, esFactory) => {
 
 	$scope.clearfilter = function(){
 		$scope.vis.params.filtervals = [];
+		$scope.complete();
 	};
+
+	// $scope.filterQuery = function (field, values, operation) {
+	//     //$scope.indexPattern.popularizeField(field, 1);
+	//     filterActions.addFilter(field, values, operation, $scope.index, $scope.state, filterManager);
+	// };
+
+	// $scope.$watch(getAppState, function (appState){
+	// 	$scope.state = appState;
+	// 	console.log("hiiiiiii");
+	// 	console.log($scope.state);
+	// }, true);
 
 });

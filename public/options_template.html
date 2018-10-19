@@ -25,12 +25,17 @@
 	  	<!-- <button type="button" ng-click="bindem()">Process</button> -->
   	</form>
   	<button class="compfields1" id="magicbutton" ng-click="complete()">Process</button>
-  	<button class="compfields2" ng-click="clearfilter()">Clear filter</button>
+  	<!-- <button class="compfields2" ng-click="clearfilter()">Clear filter</button> -->
   	
   	<!-- <div id="choicesDisplay">
       {{ choices }}
       {{ vis.params.attributes }}
   	</div> -->
+
+  	<div id="choicesDisplay">
+      {{ vis.params.filtervals }}
+      {{ vis.params.shouldvals }}
+  	</div>
 
   	<md-button class="md-fab md-mini md-primary" aria-label="Use Android">
      	<md-icon md-svg-src="img/plus.svg"></md-icon>

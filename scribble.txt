@@ -109,3 +109,37 @@ GET _search
     }
   }
 }
+
+
+GET _search
+{
+  "size": 0,
+  "query": {
+    "bool": {
+      "minimum_should_match": 2, 
+      "must": [
+        {"match": {"ttl": "234"}},
+        {"match": {"ttl": "235"}}
+      ],
+      "should": [
+        {"match": {"ttl": "236"}}
+      ],
+      "filter": {
+        "range": {
+          "epoch": {
+            "gte": 1349029726000,
+            "lte": 1538332126000
+          }
+        }
+      }
+    }
+  },
+  "aggs" : {
+    "attr" : {
+      "terms" : {
+        "field" : "src_port",
+        "size" : 2147483647
+      }
+    }
+  }
+}

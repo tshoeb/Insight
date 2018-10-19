@@ -8,6 +8,8 @@ import { VisFactoryProvider } from 'ui/vis/vis_factory';
 import { VisTypesRegistryProvider } from 'ui/registry/vis_types';
 import { VisSchemasProvider } from 'ui/vis/editors/default/schemas';
 import { VizfiltRequestHandlerProvider } from './vizfilt_request_handler';
+// import { FilterManagerProvider } from 'ui/filter_manager';
+// import { FilterBarQueryFilterProvider } from 'ui/filter_bar/query_filter';
 
 import './vizfilt_options_controller';
 import './vizfilt.less';
@@ -15,6 +17,8 @@ import './vizfilt.less';
 function VizfiltProvider(Private) {
   const VisFactory = Private(VisFactoryProvider);
   const vizfiltRequestHandler = Private(VizfiltRequestHandlerProvider).handler;
+  // const filterManager = Private(FilterManagerProvider);
+  // const queryFilter = Private(FilterBarQueryFilterProvider);
 
   return VisFactory.createBaseVisualization({
     name: 'vizfilt',
@@ -29,6 +33,7 @@ function VizfiltProvider(Private) {
         attributes: [],
         realdata:[],
         filtervals: [],
+        shouldvals: [],
       },
     },
     editorConfig: {
@@ -37,7 +42,7 @@ function VizfiltProvider(Private) {
     visualization: VisController,
     requestHandler: vizfiltRequestHandler,
     responseHandler: 'none',
-    options: { showIndexSelection: false },
+    options: { showIndexSelection: false, showFilterBar: true },
   });
 }
 

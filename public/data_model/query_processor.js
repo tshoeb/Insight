@@ -23,7 +23,7 @@ const lucenequeryparser = require('lucene-query-parser');
 
 export class QueryProcessor {
 
-	constructor(index, attributes, realdata, filtervals, shouldvals, timefilter, es, dashboardContext, filterBar){
+	constructor(index, attributes, realdata, filtervals, shouldvals, filterbarvals, timefilter, es, dashboardContext, filterBar, getAppState, filterManager){
 		this.index = index;
 		this.attributes= attributes;
 		this.realdata = realdata;
@@ -33,7 +33,10 @@ export class QueryProcessor {
 		this.dashboardContext = dashboardContext();
 		this.filtervals = filtervals;
 		this.shouldvals = shouldvals;
+		this.filterbarvals = filterbarvals;
 		this.filterBar = filterBar;
+		this.getAppState = getAppState;
+		this.filterManager = filterManager;
 		//this.queryBarQuery = queryBarQuery;
 	}
 
@@ -44,6 +47,7 @@ export class QueryProcessor {
 	    //   // if we reject current promise, it will use the standard Kibana error handling
 	    //   this.error = Utils.formatErrorToStr(err);
 	    // }
+
 	    await this._processAsync();
 	    return this;
 	}
@@ -109,10 +113,9 @@ export class QueryProcessor {
 
 	filterBarData(){
   		var filterbardata = this.filterBar.getFilters();
-  		console.log("yallah yallah")
-  		console.log(filterbardata);
+  		//console.log(filterbardata);
   		for (var j=0; j < filterbardata.length; j++){
-  			var tempdict = {}
+  			var tempdict = {};
 	        tempdict['attr'] = filterbardata[j]['meta']['key'];
 	        tempdict['key'] = filterbardata[j]['meta']['value'];
 	        this.filtervals.push(tempdict);
@@ -217,9 +220,9 @@ export class QueryProcessor {
 		// 	return filtervals_json;
 		// }
 		//console.log(filtervals_json);
-		console.log("printing filter stuff")
-		console.log(filterlist);
-		console.log(filtervals_json);
+		// console.log("printing filter stuff")
+		// console.log(filterlist);
+		// console.log(filtervals_json);
 		return filtervals_json;
 	}
 

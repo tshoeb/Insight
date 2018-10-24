@@ -20,7 +20,7 @@ export class HoverProcessor {
 		    var arrayItem = this.ogdata[j]
 		    var c_attr_name = arrayItem['key'];//attrs[j]['attr'];
 		    if (c_attr_name != attr_name){
-		    	console.log("i do come here");
+		    	//console.log("i do come here");
 			    var refinedata0 = arrayItem['value'];
 			    var currentbar = {};
 			    //var currentbar = {'attribute': c_attr_name};
@@ -29,29 +29,60 @@ export class HoverProcessor {
 			    //refinedata0.forEach(async function (dataItem){
 			        var c_attr_val =  dataItem['key'];
 			        var filterlist = [];
-			        if (String(c_attr_val).includes('others') == false && String(c_attr_val).includes('_') == false){
-				        var exlist = this.jsoner(attr_name, attr_val, c_attr_name, c_attr_val);
-				        //console.log(exlist);
-				        var doc_count = "";
-				        await this._runes_relation(c_attr_name, exlist, min, max, filterlist).then(function(result) {
-						    doc_count = result;
-						});
-				        var og_doc_count = dataItem['doc_count'];
-				        //xData.push(dataItem['key']);
-				        // var currentbar = {'attribute': attr};
-				        currentbar[String(c_attr_val)] = doc_count/parseFloat(og_doc_count);
-				        //data.push(currentbar);
-				    }
-				    if (String(c_attr_val).includes('others') == true){
-				    	filterlist = this.jsoner_others(c_attr_name);
-				    	var exlist = this.jsoner(attr_name, attr_val, "none", c_attr_val);
-				        var doc_count = "";
-				        await this._runes_relation(c_attr_name, exlist, min, max, filterlist).then(function(result) {
-						    doc_count = result;
-						});
-				        var og_doc_count = dataItem['doc_count'];
-				        currentbar[String(c_attr_val)] = (doc_count/parseFloat(og_doc_count));//*100.0;
-				    }
+			        if(String(attr_val).includes('others') == false && String(attr_val).includes('_') == false){
+				        if (String(c_attr_val).includes('others') == false && String(c_attr_val).includes('_') == false){
+					        var exlist = this.jsoner(attr_name, attr_val, c_attr_name, c_attr_val);
+					        //console.log(exlist);
+					        var doc_count = "";
+					        await this._runes_relation(c_attr_name, exlist, min, max, filterlist).then(function(result) {
+							    doc_count = result;
+							});
+					        var og_doc_count = dataItem['doc_count'];
+					        //xData.push(dataItem['key']);
+					        // var currentbar = {'attribute': attr};
+					        currentbar[String(c_attr_val)] = doc_count/parseFloat(og_doc_count);
+					        //data.push(currentbar);
+					    }
+					    if (String(c_attr_val).includes('others') == true){
+					    	filterlist = this.jsoner_others(c_attr_name);
+					    	var exlist = this.jsoner(attr_name, attr_val, "none", c_attr_val);
+					        var doc_count = "";
+					        await this._runes_relation(c_attr_name, exlist, min, max, filterlist).then(function(result) {
+							    doc_count = result;
+							});
+					        var og_doc_count = dataItem['doc_count'];
+					        currentbar[String(c_attr_val)] = (doc_count/parseFloat(og_doc_count));//*100.0;
+					    }
+					}
+					if(String(attr_val).includes('others') == true){
+						if (String(c_attr_val).includes('others') == false && String(c_attr_val).includes('_') == false){
+					        var exlist = this.jsoner(c_attr_name, c_attr_val, "none", "none");
+					        filterlist = this.jsoner_others(attr_name);
+					        //console.log(exlist);
+					        var doc_count = "";
+					        await this._runes_relation(c_attr_name, exlist, min, max, filterlist).then(function(result) {
+							    doc_count = result;
+							});
+					        var og_doc_count = dataItem['doc_count'];
+					        //xData.push(dataItem['key']);
+					        // var currentbar = {'attribute': attr};
+					        currentbar[String(c_attr_val)] = doc_count/parseFloat(og_doc_count);
+					        //data.push(currentbar);
+					    }
+					    if (String(c_attr_val).includes('others') == true){
+					    	console.log("yellow");
+					    	var filterlist1 = this.jsoner_others(c_attr_name);
+					    	var filterlist2 = this.jsoner_others(attr_name);
+					    	filterlist = filterlist1.concat(filterlist2)
+					    	var exlist = [];
+					        var doc_count = "";
+					        await this._runes_relation(c_attr_name, exlist, min, max, filterlist).then(function(result) {
+							    doc_count = result;
+							});
+					        var og_doc_count = dataItem['doc_count'];
+					        currentbar[String(c_attr_val)] = (doc_count/parseFloat(og_doc_count));//*100.0;
+					    }
+					}
 			    //});
 				}
 				data[c_attr_name] = currentbar;

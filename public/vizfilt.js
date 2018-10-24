@@ -34,6 +34,7 @@ function VizfiltProvider(Private) {
         realdata:[],
         filtervals: [],
         shouldvals: [],
+        filterbarvals: [],
       },
     },
     editorConfig: {
@@ -42,7 +43,7 @@ function VizfiltProvider(Private) {
     visualization: VisController,
     requestHandler: vizfiltRequestHandler,
     responseHandler: 'none',
-    options: { showIndexSelection: false, showFilterBar: true },
+    options: { showIndexSelection: true, showFilterBar: true },
   });
 }
 

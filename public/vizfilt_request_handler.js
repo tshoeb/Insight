@@ -1,4 +1,5 @@
 import { QueryProcessor } from './data_model/query_processor';
+import { FilterProcessor } from './data_model/filter_processor';
 import { dashboardContextProvider } from 'plugins/kibana/dashboard/dashboard_context';
 import { FilterBarQueryFilterProvider } from 'ui/filter_bar/query_filter';
 import { FilterManagerProvider } from 'ui/filter_manager';
@@ -11,7 +12,9 @@ export function VizfiltRequestHandlerProvider(Private, es, timefilter, serviceSe
 
   const dashboardContext = Private(dashboardContextProvider);
   const filterManager = Private(FilterManagerProvider);
+  //const appState = Private(AppStateProvider);
   //console.log(getAppState);
+  console.log("hello");
   
   const filterBar = Private(FilterBarQueryFilterProvider);
   //const searchCache = new SearchCache(es, { max: 10, maxAge: 4 * 1000 });
@@ -29,8 +32,18 @@ export function VizfiltRequestHandlerProvider(Private, es, timefilter, serviceSe
       vis.params.realdata=[];
       vis.params.filtervals=[];
       vis.params.shouldvals=[];
+
+      $('.filter-remove').click(function () {
+        console.log("brooooooo");
+        var filtertag = $(this).parent();
+        console.log(filtertag);
+        vis.params.filterbarvals = [];
+      });
+
       //vis.params.checker=false;
-      const qp = new QueryProcessor(vis.params.index, vis.params.attributes, vis.params.realdata, vis.params.filtervals, vis.params.shouldvals, timefilter, es, dashboardContext, filterBar);//, vis.params.top_n, vis.params.order)
+      const fp = new FilterProcessor(vis.params.index, filterManager);
+      fp.putfilters(vis.params.filterbarvals);
+      const qp = new QueryProcessor(vis.params.index, vis.params.attributes, vis.params.realdata, vis.params.filtervals, vis.params.shouldvals, vis.params.filterbarvals, timefilter, es, dashboardContext, filterBar, getAppState, filterManager);//, vis.params.top_n, vis.params.order)
       return qp.processAsync();
     }
 

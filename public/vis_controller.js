@@ -58,6 +58,7 @@ class VisController {
     var data = [];
     var xData=[];
     var clicklist = [];
+    var thefilterdata = [];
 
     // console.log("length before printing:"+rawdata.length)
     // console.log("type of rawdata:"+typeof(rawdata));
@@ -81,8 +82,8 @@ class VisController {
     for (var j=0; j < rawdata.length; j++){
       var arrayItem = rawdata[j]
       var attr = arrayItem['key'];//attrs[j]['attr'];
-      console.log(j);
-      console.log(attr);
+      // console.log(j);
+      // console.log(attr);
       var refinedata0 = arrayItem['value']
       var currentbar = {'attribute': attr};
       refinedata0.forEach(function (dataItem){
@@ -161,7 +162,7 @@ class VisController {
       .offset(d3.stackOffsetDiverging)
       (data);
 
-    console.log(series);
+    //console.log(series);
 
     var x = d3.scaleBand()
         .domain(data.map(function(d) { return d.attribute; }))
@@ -271,8 +272,8 @@ class VisController {
         d3.select(this)
           .transition()
           .duration(100)
-          .attr('r', 20)
-          .attr('fill', '#DAA520');
+          .attr('r', 20);
+          //.attr('fill', '#DAA520');
 
         if (attrs.length > 1) {
 
@@ -497,10 +498,13 @@ class VisController {
         tempdict['attr'] = attr_name;
         tempdict['key'] = attr_val;
 
-        clicklist.push(tempdict);
+        thefilterdata.push(tempdict);
+
+        //clicklist.push(tempdict);
 
         setTimeout(function(){
-          executinclick();
+          puttingthefilter(thefilterdata);
+          //executinclick();
         },3000);
 
         // var querytxt = attr_name+":"+attr_val;
@@ -585,6 +589,10 @@ class VisController {
     //   .attr("stroke-width", 2)
     //   .attr("stroke", "black")
 
+    function addtofilterbar(){
+      FilterProcessor.putfilters(thefilterdata);
+    }
+
     function executinclick(){
       //console.log("ppppppppp");
       //console.log(clicklist);
@@ -613,7 +621,8 @@ class VisController {
 
       // console.log("TALALAL INSIDEEE")
       // console.log(talal.vis.params)
-      talal.vis.params.filtervals.push(tempdict);
+      //talal.vis.params.filtervals.push(tempdict);
+      talal.vis.params.filterbarvals= tempdict;
       $("#magicbutton").click()
     }.bind(null, this)
 

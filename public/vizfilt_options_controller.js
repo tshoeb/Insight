@@ -4,6 +4,7 @@ import * as filterActions from 'ui/doc_table/actions/filter';
 import 'ui/query_bar';
 import { FilterBarQueryFilterProvider } from 'ui/filter_bar/query_filter';
 import { StateProvider } from 'ui/state_management/state';
+import { FilterProcessor } from './data_model/filter_processor';
 
 
 const module = uiModules.get('kibana/vizfilt', ['kibana'], ['elasticsearch']);
@@ -26,7 +27,15 @@ module.controller('VizfiltOptionsController', ($scope, client, esFactory, Privat
 	$scope.topn = 0;
 	$scope.compdata = [];
 	$scope.selected = false;
-	$scope.choices = [{}];
+	var tempdict = {};
+	tempdict['topn'] = 10;
+	if($scope.vis.params.attributes.length != 0){
+		$scope.choices = $scope.vis.params.attributes;
+	} else{
+		$scope.choices = [];
+		$scope.choices.push(tempdict);
+	}
+	
 
 	//console.log($scope);
 	$scope.vis.params.index = $scope.vis.indexPattern.title;
@@ -51,7 +60,9 @@ module.controller('VizfiltOptionsController', ($scope, client, esFactory, Privat
 	$scope.addNewChoice = function() {
 		console.log("what is happenin??");
 	    var newItemNo = $scope.choices.length+1;
-	    $scope.choices.push({});
+	    var tempdict = {};
+	    tempdict['topn'] = 10;
+	    $scope.choices.push(tempdict);
 	 };
 
 	$scope.removeChoice = function(incoming) {
@@ -61,7 +72,7 @@ module.controller('VizfiltOptionsController', ($scope, client, esFactory, Privat
 	};
 
 	$scope.complete = function() {
-		console.log("what is happenin???");
+		//console.log("what is happenin???");
 		$scope.vis.params.attributes = $scope.choices;
 	};
 

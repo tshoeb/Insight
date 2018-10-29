@@ -33,17 +33,22 @@ export function VizfiltRequestHandlerProvider(Private, es, timefilter, serviceSe
       vis.params.filtervals=[];
       vis.params.shouldvals=[];
 
-      $('.filter-remove').click(function () {
-        console.log("brooooooo");
-        var filtertag = $(this).parent();
-        console.log(filtertag);
-        vis.params.filterbarvals = [];
-      });
+      // $('.filter-remove').click(function () {
+      //   console.log("brooooooo");
+      //   var filtertag = $(this).parent();
+      //   console.log(filtertag);
+      //   vis.params.filterbarvals = [];
+      // });
 
       //vis.params.checker=false;
+      // if(vis.params.filterbarvals.length){
+      //   const fp = new FilterProcessor(vis.params.index, filterManager);
+      //   fp.putfilters(vis.params.filterbarvals);
+      //   vis.params.filterbarvals = [];
+      // }
       const fp = new FilterProcessor(vis.params.index, filterManager);
-      fp.putfilters(vis.params.filterbarvals);
-      const qp = new QueryProcessor(vis.params.index, vis.params.attributes, vis.params.realdata, vis.params.filtervals, vis.params.shouldvals, vis.params.filterbarvals, timefilter, es, dashboardContext, filterBar, getAppState, filterManager);//, vis.params.top_n, vis.params.order)
+      vis.params.fpc = fp;
+      const qp = new QueryProcessor(vis.params.index, vis.params.attributes, vis.params.realdata, vis.params.filtervals, vis.params.shouldvals, timefilter, es, dashboardContext, filterBar, getAppState, filterManager);//, vis.params.top_n, vis.params.order)
       return qp.processAsync();
     }
 

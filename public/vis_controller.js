@@ -2,6 +2,7 @@ import { HoverProcessor } from './data_model/hover_processor';
 import { QueryProcessor } from './data_model/query_processor';
 import { FilterProcessor } from './data_model/filter_processor';
 
+
 const d3 = require('d3');
 const d3_svg = require('d3-svg');
 const d3_tip = require('d3-tip');
@@ -268,6 +269,8 @@ class VisController {
         // console.log("Mouseover for tooltip");
         //tip.show
         //tooltip.style("display", null);
+        d3.selectAll("line").remove();
+        d3.selectAll(".highlightrects").remove();
         tooltip.style("visibility", "visible");
         d3.select(this)
           .transition()
@@ -622,8 +625,20 @@ class VisController {
       // console.log("TALALAL INSIDEEE")
       // console.log(talal.vis.params)
       //talal.vis.params.filtervals.push(tempdict);
-      talal.vis.params.filterbarvals= tempdict;
-      $("#magicbutton").click()
+     //talal.vis.params.filterbarvals= tempdict;
+      // var filterManager = module.component('myService', function (Private) {
+      //   const filterManager = Private(FilterManagerProvider);
+      //   return filterManager;
+      //   //if($scope.vis.params.filterbarvals.length){
+      //   //$scope.vis.params.filterbarvals);
+      //     //$scope.vis.params.filterbarvals = [];
+      //   //}
+      // });
+
+      //console.log("Am i here?");
+      //const fp = new FilterProcessor(talal.vis.params.index);//, filterManager);
+      talal.vis.params.fpc.putfilters(tempdict);
+      //$("#magicbutton").click()
     }.bind(null, this)
 
     

@@ -13,6 +13,7 @@ import { VizfiltRequestHandlerProvider } from './vizfilt_request_handler';
 
 import './vizfilt_options_controller';
 import './vizfilt.less';
+import './data_model/filter_processor';
 
 function VizfiltProvider(Private) {
   const VisFactory = Private(VisFactoryProvider);
@@ -35,6 +36,7 @@ function VizfiltProvider(Private) {
         filtervals: [],
         shouldvals: [],
         filterbarvals: [],
+        fpc: "",
       },
     },
     editorConfig: {

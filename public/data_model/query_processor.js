@@ -23,7 +23,7 @@ const lucenequeryparser = require('lucene-query-parser');
 
 export class QueryProcessor {
 
-	constructor(index, attributes, realdata, filtervals, shouldvals, filterbarvals, timefilter, es, dashboardContext, filterBar, getAppState, filterManager){
+	constructor(index, attributes, realdata, filtervals, shouldvals, timefilter, es, dashboardContext, filterBar, getAppState, filterManager){
 		this.index = index;
 		this.attributes= attributes;
 		this.realdata = realdata;
@@ -33,7 +33,7 @@ export class QueryProcessor {
 		this.dashboardContext = dashboardContext();
 		this.filtervals = filtervals;
 		this.shouldvals = shouldvals;
-		this.filterbarvals = filterbarvals;
+		//this.filterbarvals = filterbarvals;
 		this.filterBar = filterBar;
 		this.getAppState = getAppState;
 		this.filterManager = filterManager;
@@ -113,7 +113,7 @@ export class QueryProcessor {
 
 	filterBarData(){
   		var filterbardata = this.filterBar.getFilters();
-  		//console.log(filterbardata);
+  		console.log(filterbardata);
   		for (var j=0; j < filterbardata.length; j++){
   			var tempdict = {};
 	        tempdict['attr'] = filterbardata[j]['meta']['key'];

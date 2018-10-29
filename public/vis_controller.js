@@ -5,9 +5,6 @@ import { FilterProcessor } from './data_model/filter_processor';
 
 const d3 = require('d3');
 const d3_svg = require('d3-svg');
-const d3_tip = require('d3-tip');
-
-//https://github.com/53seven/d3-svg
 
 class VisController {
   constructor(el, vis) {
@@ -24,19 +21,10 @@ class VisController {
   }
 
   render(visData, status) {
-    console.log("i am the visualizer");
-    console.log(visData);
-
-    // var rawdata=[];
-    //var rawdata = this.getdata(visData)
-    if (visData['realdata'] != undefined ){//&& visData['realdata'] > 0){
+    if (visData['realdata'] != undefined ){
       this.buildit(visData['attributes'], visData['realdata'], visData);
     }
-    //await this._getdata(visData);
-
-    // if (rawdata != undefined && rawdata.length > 0){
-    //   await this._buildit(rawdata);
-    // }
+    
     return new Promise(resolve => {
       resolve('when done rendering');
     });
@@ -61,45 +49,19 @@ class VisController {
     var clicklist = [];
     var thefilterdata = [];
 
-    // console.log("length before printing:"+rawdata.length)
-    // console.log("type of rawdata:"+typeof(rawdata));
-    //console.log(rawdata);
-
-    // rawdata.forEach(function (arrayItem) {
-    //     var attr = arrayItem['key'];
-    //     var refinedata0 = arrayItem['value']
-    //     refinedata0.forEach(function (dataItem){
-    //       var attr_val =  dataItem['key'];
-    //       var doc_count = dataItem['doc_count'];
-    //       xData.push(dataItem['key']);
-    //       var currentbar = {'attribute': attr};
-    //       currentbar[attr_val] = doc_count;
-    //       data.push(currentbar);
-    //     });
-    // });
-
-   //console.log("length:"+ rawdata.length);
-    //console.log(rawdata[1]);
     for (var j=0; j < rawdata.length; j++){
       var arrayItem = rawdata[j]
-      var attr = arrayItem['key'];//attrs[j]['attr'];
-      // console.log(j);
-      // console.log(attr);
+      var attr = arrayItem['key'];
       var refinedata0 = arrayItem['value']
       var currentbar = {'attribute': attr};
       refinedata0.forEach(function (dataItem){
         var attr_val =  dataItem['key'];
         var doc_count = dataItem['doc_count'];
         xData.push(dataItem['key']);
-        // var currentbar = {'attribute': attr};
         currentbar[attr_val] = doc_count;
-        //data.push(currentbar);
       });
       data.push(currentbar);
     }
-
-    //console.log(data);
-    // console.log(xData);
 
     this.container.innerHTML = '';
     const vizfiltDiv = document.createElement(`div`);
@@ -118,37 +80,6 @@ class VisController {
       margin = {top: 20, right: 20, bottom: 30, left: 60},
       width = +svg.attr("width") - margin.left - margin.right,
       height = +svg.attr("height") - margin.top - margin.bottom;
-      // g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-
-    // var svg = d3_svg.create(vizfiltDiv, {width: width + margin.left + margin.right, height: height + margin.top + margin.bottom});
-
-    // console.log("-----------------------")
-    // console.log(svg)
-    // console.log("-----------------------")
-    // // set x scale
-    // var x = d3.scaleBand()
-    //   .rangeRound([0, width])
-    //   .paddingInner(0.05)
-    //   .align(0.1);
-
-    // // set y scale
-    // var y = d3.scaleLinear()
-    //   .rangeRound([height, 0]);
-
-    // // set the colors
-    // var z = d3.scaleOrdinal()
-    //   .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
-
-    // console.log("==============dsfsafasdfadsfadf======================")
-    // console.log(xData)
-    // console.log(data)
-    // for (var i = 0; i < data.length; i++)
-    //   for (var j = 0; j < xData.length; j++)
-    //     if (data[i][xData[j]] == undefined)
-    //       data[i][xData[j]] = 0;
-
-    // console.log("==============dsfsafasdfadsfadf======================")
 
 
     d3.selection.prototype.moveToFront = function() {  
@@ -162,8 +93,6 @@ class VisController {
       .keys(xData)
       .offset(d3.stackOffsetDiverging)
       (data);
-
-    //console.log(series);
 
     var x = d3.scaleBand()
         .domain(data.map(function(d) { return d.attribute; }))
@@ -181,39 +110,21 @@ class VisController {
       .range(xData);
 
     var tooltip = svg.append("g")
-      //.attr("class", "tooltip")
       .style("position", "fixed")
       .style("visibility", "hidden");
-      //.attr("fill", "orange")
-      //.style("display", "none");
 
-    // var tip = d3_tip()
-    //   .attr('class', 'd3-tip')
-    //   .offset([-10, 0])
-    //   .html(function(d) {
-    //     console.log("oh wow");
-    //     return "<strong>Value:</strong> <span style='color:red'>" + d.data.attribute + "</span>";
-    //   });
-
-    // svg.call(tip);
         
     tooltip.append("rect")
       .attr("width", 140)
       .attr("height", 80)
       .attr("rx", 10)         // set the x corner curve radius
       .attr("ry", 10)
-      // .style("border", "0px")
-      // .style("border-radius", "8px")
-      //.style("background-color", "#bfbfbf");
       .attr("fill", "#f5f5f5");
-      //.style("opacity", 0.5);
 
     tooltip.append("text")
       .attr("class","tooltipattr")
       .attr("x", 15)
       .attr("dy", "2em")
-      //.style("text-anchor", "middle")
-      //.style("color", "white")
       .style("opacity", 1)
       .style("font-size", "12px")
       .style("font-weight", "bold");
@@ -222,8 +133,6 @@ class VisController {
       .attr("class","tooltipquant")
       .attr("x", 15)
       .attr("dy", "3.5em")
-      //.style("text-anchor", "middle")
-      //.style("color", "white")
       .style("opacity", 1)
       .style("font-size", "12px")
       .style("font-weight", "bold");
@@ -232,8 +141,6 @@ class VisController {
       .attr("class","tooltippercent")
       .attr("x", 15)
       .attr("dy", "5em")
-      //.style("text-anchor", "middle")
-      //.style("color", "white")
       .style("opacity", 1)
       .style("font-size", "12px")
       .style("font-weight", "bold");
@@ -266,9 +173,6 @@ class VisController {
           return mypercent;
         })
       .on("mouseover", async function(d, i) {
-        // console.log("Mouseover for tooltip");
-        //tip.show
-        //tooltip.style("display", null);
         d3.selectAll("line").remove();
         d3.selectAll(".highlightrects").remove();
         tooltip.style("visibility", "visible");
@@ -276,7 +180,6 @@ class VisController {
           .transition()
           .duration(100)
           .attr('r', 20);
-          //.attr('fill', '#DAA520');
 
         if (attrs.length > 1) {
 
@@ -291,17 +194,13 @@ class VisController {
           }
           var attr_name = tempvals.childNodes[numtouse].getAttribute("attrname");
           var attr_val = tempvals.getAttribute("attrval");
-
-          // console.log(attr_name);
-          // console.log(attr_val);
           
           const hp = new HoverProcessor(visData);
           var relations = [];
 
           await hp.getrelations(attr_name, attr_val).then(function(result) {
-                relations = result;
-            });
-          //console.log(relations);
+            relations = result;
+          });
 
           for (var q=0; q < xData.length; q++){
             var node_attrval = allthenodes.childNodes[q].getAttribute("attrval");
@@ -322,17 +221,6 @@ class VisController {
 
                   if (Number(relation_count) != 0){
                     var new_height = (Number(node_height)*Number(relation_count));;
-
-                    // if (relation_count == 1){
-                    //   new_height = Number(node_height);
-                    // } else{
-                    //   new_height = (Number(node_height)*Number(relation_count));
-                    // }
-                
-                    // console.log(node_attrname);
-                    // console.log(node_attrval);
-                    // console.log(relation_count);
-                    // console.log(new_height);
 
                     svg.append("rect")
                       .attr("x", node_x)
@@ -397,25 +285,13 @@ class VisController {
                 }
               }
             }
-            // for (var h=0; h < relations.length; s++){
-            //   //console.log(relations[h]['attribute']);
-            //   if (node_attrname == relations[h]['attribute']){
-            //     var relation_count = relations[h][node_attrval];
-            //     console.log("**************");
-            //     console.log(relation_count);
-            //   }
-            // }
           }
         }
-        // console.log(d);
-        // console.log(i); 
       })
       .on("mouseout", function() {
-        //tip.hide
         d3.selectAll("line").remove();
         d3.selectAll(".highlightrects").remove(); 
         tooltip.style("visibility", "hidden");
-        //tooltip.style("display", "none");
         d3.select(this)
           .transition()
           .duration(100)
@@ -423,10 +299,6 @@ class VisController {
           .attr('fill', this.color);
       })
       .on("mousemove", function(d) {
-        // console.log("Tooltip Mouse move")
-        // console.log(d)
-        // console.log(this);
-        // console.log(this.y.baseVal.value);
         var tempvals = d3.select(this.parentNode)._groups[0][0];
         var allthenodes=(this.parentNode).parentNode;
         var numtouse = 0;
@@ -440,17 +312,6 @@ class VisController {
         var attr_val = tempvals.getAttribute("attrval");
         var attr_quantity = tempvals.childNodes[numtouse].getAttribute("quant");
         var attr_percent = tempvals.childNodes[numtouse].getAttribute("percent");
-        //console.log(this.parentNode);
-        // this.parentNode.append("text")
-        //   .attr("font-size", "2em")
-        //   .attr("color", "black")
-        //   .text(attr_val);
-        // var xPosition = d3.mouse(this)[0] - 5;
-        // var yPosition = d3.mouse(this)[1] - 5;
-        // tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
-        //tooltip.style("display", "contents");
-        //tooltip.attr("transform", "translate(" + (Number(this.x.baseVal.value) - 30) + "," + this.y.baseVal.value + ")");
-        //tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");
         var offset = $(".myvis-div").offset();
         var tooltipx = (Number(event.pageX) - offset.left); //525
         var tooltipy = (Number(event.pageY) - offset.top); //35
@@ -459,8 +320,6 @@ class VisController {
           tooltipy = tooltipy - 100;
         }
         
-        // console.log(tooltipx+","+tooltipy);
-        // console.log("===========================================")
         var tooltipattr = attr_name+": "+attr_val;
         var tooltipval = "value: "+attr_quantity;
         var tooltippercent = "percentage: "+attr_percent+"%";
@@ -474,13 +333,9 @@ class VisController {
         tooltip.select(".tooltipattr").text(tooltipattr);//(d[1]-d[0]);
         tooltip.select(".tooltipquant").text(tooltipval);
         tooltip.select(".tooltippercent").text(tooltippercent);
-        tooltip.raise();//moveToFront();
-        //tooltip.select("text").raise();
+        tooltip.raise();
       })
       .on("click", function(){
-
-        // const fp = new FilterProcessor();
-        // fp.getfilters();
 
         var tempvals = d3.select(this.parentNode)._groups[0][0];
         var allthenodes=(this.parentNode).parentNode;
@@ -503,20 +358,9 @@ class VisController {
 
         thefilterdata.push(tempdict);
 
-        //clicklist.push(tempdict);
-
         setTimeout(function(){
           puttingthefilter(thefilterdata);
-          //executinclick();
         },3000);
-
-        // var querytxt = attr_name+":"+attr_val;
-
-        // $('.kuiLocalSearchInput').val(querytxt).trigger('input');
-        // $('.kuiLocalSearchButton').click()
-        //$('queryBar').submit();
-
-        //puttingthefilter(tempdict);
       });
     
     svg.append("g")
@@ -527,78 +371,12 @@ class VisController {
         .attr("transform", "translate(" + margin.left + ",0)")
         .call(d3.axisLeft(y));
 
-    // var filter_y=0;
-    // var filter_height= 0;
-
-    // d3.selectAll(".filtered").each(function() {
-    //   console.log(this.childNodes.length);
-    //   for (var p=0; p < this.childNodes.length; p++){
-    //     var heightcheck = this.childNodes[p].getAttribute("height");
-    //     if (heightcheck != "NaN"){
-    //       if (Number(this.childNodes[p].getAttribute("y")) > filter_y){
-    //         filter_y = Number(this.childNodes[p].getAttribute("y"));
-    //         filter_height = Number(this.childNodes[p].getAttribute("height"))
-    //       }
-    //     }
-    //   }
-    //   // console.log(Number(d3.select(this).attr("y")));
-    //   // if (Number(d3.select(this).attr("y")) > filter_y){
-    //   //   filter_y = d3.select(this).attr("y");
-    //   // }
-    // });
-
-    // console.log("i am line y");
-    // console.log(filter_y);
-    // if (filter_y > 0 ){
-    //   svg.append("line")
-    //   .attr("x1", 0)
-    //   .attr("y1", filter_y+filter_height)
-    //   .attr("x2", 900)
-    //   .attr("y2", filter_y+filter_height)
-    //   .attr("stroke-width", 1.5)
-    //   .attr("stroke", "black");
-    // }
-
-
-
-
-    // svg.append("g")
-    //   .selectAll("g")
-    //   .data(series)
-    //   .enter().append("g")
-    //     .attr("fill", 'red')
-    //   .selectAll("rect")
-    //   .data(function(d) { return d; })
-    //   .enter().append("rect")
-    //     .attr("width", 600)
-    //     .attr("x", 300)
-    //     .attr("y", 300)
-    //     .attr("height", 120);
-
-
-    // svg.append("line")
-    //   .attr("x1", 300)
-    //   .attr("y1", 300)
-    //   .attr("x2", 300)
-    //   .attr("y2", 420)
-    //   .attr("stroke-width", 2)
-    //   .attr("stroke", "black")
-
-    // svg.append("line")
-    //   .attr("x1", 300)
-    //   .attr("y1", 420)
-    //   .attr("x2", 500)
-    //   .attr("y2", 420)
-    //   .attr("stroke-width", 2)
-    //   .attr("stroke", "black")
 
     function addtofilterbar(){
       FilterProcessor.putfilters(thefilterdata);
     }
 
     function executinclick(){
-      //console.log("ppppppppp");
-      //console.log(clicklist);
       var querytxt = "";
       for(var p=0; p < clicklist.length; p++){
         if(p+1 == clicklist.length){
@@ -621,24 +399,7 @@ class VisController {
     }
 
     var puttingthefilter = function(talal, tempdict) {
-
-      // console.log("TALALAL INSIDEEE")
-      // console.log(talal.vis.params)
-      //talal.vis.params.filtervals.push(tempdict);
-     //talal.vis.params.filterbarvals= tempdict;
-      // var filterManager = module.component('myService', function (Private) {
-      //   const filterManager = Private(FilterManagerProvider);
-      //   return filterManager;
-      //   //if($scope.vis.params.filterbarvals.length){
-      //   //$scope.vis.params.filterbarvals);
-      //     //$scope.vis.params.filterbarvals = [];
-      //   //}
-      // });
-
-      //console.log("Am i here?");
-      //const fp = new FilterProcessor(talal.vis.params.index);//, filterManager);
       talal.vis.params.fpc.putfilters(tempdict);
-      //$("#magicbutton").click()
     }.bind(null, this)
 
     

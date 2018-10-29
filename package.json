@@ -4,9 +4,7 @@
   "dependencies": {
     "d3": "5.5.0",
     "d3-svg": "0.2.2",
-    "d3-tip": "0.9.1",
     "elasticsearch": "15.0.0",
-    "json-stringify-pretty-compact": "^1.1.0",
     "angular-md": "1.0.0",
     "lucene-query-parser": "1.2.0"
   }

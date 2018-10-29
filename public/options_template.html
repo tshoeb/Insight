@@ -1,41 +1,23 @@
 <div class="form-group" ng-controller="VizfiltOptionsController">
 	<form>
-		<!-- <div class="indexarea">
-			<label class="labelling">Index:</label>
-			<select class="indexplace" ng-model="vis.params.index" ng-options="o as o for o in idlist" ng-change="makeselection()">
-			</select>
-		</div> -->
-			<fieldset  class="thechooser-in" data-ng-repeat="choice in choices" ng-show="selected">
-				<div class="thechooser-out">
-					<div class="attr">
-						<label>Attribute:</label>
-						<select ng-model="choice.attr" ng-options="term as term for term in termlist">
-						</select>
-					</div>
-
-					<div class="topn">
-						<label>Top N Values:</label>
-				  		<input type="number" ng-model="choice.topn" min="10" max="100"/>
-				  	</div>
+		<fieldset  class="thechooser-in" data-ng-repeat="choice in choices" ng-show="selected">
+			<div class="thechooser-out">
+				<div class="attr">
+					<label>Attribute:</label>
+					<select ng-model="choice.attr" ng-options="term as term for term in termlist">
+					</select>
 				</div>
-		  		<button class="remove" ng-click="removeChoice($index)">Remove</button>
-		  	</fieldset>
-		  	<button class="addfields" ng-click="addNewChoice()">Add fields</button>
-	  	
-	  	<!-- <button type="button" ng-click="bindem()">Process</button> -->
+
+				<div class="topn">
+					<label>Top N Values:</label>
+			  		<input type="number" ng-model="choice.topn" min="10" max="100"/>
+			  	</div>
+			</div>
+	  		<button class="remove" ng-click="removeChoice($index)">Remove</button>
+	  	</fieldset>
+	  	<button class="addfields" ng-click="addNewChoice()">Add fields</button>
   	</form>
   	<button class="compfields1" id="magicbutton" ng-click="complete()">Process</button>
-  	<!-- <button class="compfields2" ng-click="clearfilter()">Clear filter</button> -->
-  	
-  	<!-- <div id="choicesDisplay">
-      {{ choices }}
-      {{ vis.params.attributes }}
-  	</div> -->
-
-  	<div id="choicesDisplay">
-      {{ vis.params.filtervals }}
-      {{ vis.params.shouldvals }}
-  	</div>
 
   	<md-button class="md-fab md-mini md-primary" aria-label="Use Android">
      	<md-icon md-svg-src="img/plus.svg"></md-icon>

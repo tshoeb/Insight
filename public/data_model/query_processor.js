@@ -1,23 +1,6 @@
-import { Utils } from './utils';
 import { uiModules } from 'ui/modules';
 import { timefilter } from 'ui/timefilter';
 import { luceneStringToDsl, migrateFilter } from 'ui/courier';
-// import { FilterBarQueryFilterProvider } from 'ui/filter_bar/query_filter';
-
-// const module = uiModules.get('kibana/vizfilt', ['kibana'], ['elasticsearch']);
-// const queryfilter = FilterBarQueryFilterProvider;
-// console.log(queryfilter);
-// var currentfilter = queryfilter.getFilters();
-
-// module.service('client', function (esFactory) {
-//   return esFactory({
-//     host: 'localhost:9200',
-//     apiVersion: 'master',
-//     log: 'trace'
-//   });
-// });
-
-// console.log(module.service('client'))
 
 const lucenequeryparser = require('lucene-query-parser');
 
@@ -27,27 +10,17 @@ export class QueryProcessor {
 		this.index = index;
 		this.attributes= attributes;
 		this.realdata = realdata;
-		//this.checker=checker;
 		this.timefilter = timefilter;
 		this.es = es;
 		this.dashboardContext = dashboardContext();
 		this.filtervals = filtervals;
 		this.shouldvals = shouldvals;
-		//this.filterbarvals = filterbarvals;
 		this.filterBar = filterBar;
 		this.getAppState = getAppState;
 		this.filterManager = filterManager;
-		//this.queryBarQuery = queryBarQuery;
 	}
 
 	async processAsync() {
-	    // try {
-	    //   await this._processAsync();
-	    // } catch (err) {
-	    //   // if we reject current promise, it will use the standard Kibana error handling
-	    //   this.error = Utils.formatErrorToStr(err);
-	    // }
-
 	    await this._processAsync();
 	    return this;
 	}
@@ -57,22 +30,11 @@ export class QueryProcessor {
 		var timeattrs = this.timefilter.getBounds();
 		var min = timeattrs.min.valueOf();
 		var max = timeattrs.max.valueOf();
-		//console.log(this.dashboardContext());
-
-		//const appState = this.getAppState();
-		// if (this.filtervals.length != 0){
-		// 	appState.query = this.filtervals[0]['attr']+":"+this.filtervals[0]['key'];
-		// }
-		//var queryBarQuery = appState.query;
-		// const query = luceneStringToDsl(queryBarQuery.query);
-		// console.log("^^^^^^^^^^");
-		// console.log(query);
 		await this.getdata(this.attributes, tempdata, min, max, this.filtervals, this.shouldvals, this.dashboardContext);
 		this.realdata = tempdata;
 	}
 
 	async getdata(attributes, tempdata, min, max, filtervals, shouldvals, dashboardContext){
-		//var temp = [];
 		var filterlist = [];
 		var shouldlist = [];
 		this.filterBarData();
@@ -211,18 +173,6 @@ export class QueryProcessor {
 			tempquery["match"] = tempdict;
 			filtervals_json.push(tempquery);
 		}
-		// if(filtervals_json.length > 1){
-		// 	filtervals_json_text = "["+JSON.stringify(filtervals_json[0]) + ",\n" + JSON.stringify(filtervals_json[1])+"]";
-		// 	console.log(filtervals_json_text);
-		// 	return filtervals_json_text;
-		// }
-		// else{
-		// 	return filtervals_json;
-		// }
-		//console.log(filtervals_json);
-		// console.log("printing filter stuff")
-		// console.log(filterlist);
-		// console.log(filtervals_json);
 		return filtervals_json;
 	}
 
@@ -261,7 +211,6 @@ export class QueryProcessor {
 			
 			for (var q=0; q < resultlist.length; q++){
 				var tempdict = {};
-				//tempdict ['key'] = "_" + resultlist[q]['key'];
 				tempdict ['key'] = resultlist[q]['key'];
 				tempdict['doc_count'] = resultlist[q]['doc_count'];
 				fqdata.push(tempdict);
@@ -269,7 +218,7 @@ export class QueryProcessor {
 		});
 	}
 
-	async _runes_others(attr, fqdata, min, max, exlist, filtervals, shouldvals, mnum){//, tempdata){
+	async _runes_others(attr, fqdata, min, max, exlist, filtervals, shouldvals, mnum){
 		var temp = await this.es.search({
 			"index": this.index,
 		  	"body": {
@@ -316,10 +265,7 @@ export class QueryProcessor {
 		            "bool": {
 		            	"minimum_should_match": mnum,
 		            	"should": shouldvals,
-		            	"must": filtervals,//[
-				          //{ "match": { "src_port" : "37182" }},
-				          //{ "match": { "src_port" : "45406" }}
-				        //],
+		            	"must": filtervals,
 		                "filter": {
 		                    "range": {
 		                        "epoch": {
@@ -340,12 +286,10 @@ export class QueryProcessor {
 			    }
 		  	}
 		}).then(function(result) {
-			//console.log("Other Data Pusher")
 			var resultlist= result['aggregations']['attr']['buckets'];
 			
 			for (var q=0; q < resultlist.length; q++){
 				var tempdict = {};
-				//tempdict ['key'] = "_" + resultlist[q]['key'];
 				tempdict ['key'] = resultlist[q]['key'];
 				tempdict['doc_count'] = resultlist[q]['doc_count'];
 				fqdata.push(tempdict);

@@ -6,10 +6,11 @@ const lucenequeryparser = require('lucene-query-parser');
 
 export class QueryProcessor {
 
-	constructor(index, attributes, timedata, realdata, filtervals, shouldvals, es, dashboardContext, filterBar, getAppState, filterManager){
+	constructor(index, attributes, timefield, timefunc, realdata, filtervals, shouldvals, es, dashboardContext, filterBar, getAppState, filterManager){
 		this.index = index;
 		this.attributes= attributes;
-		this.timedata = timedata;
+		this.timefield = timefield;
+		this.timefunc = timefunc;
 		this.realdata = realdata;
 		this.timefilter = timefilter;
 		this.es = es;
@@ -32,8 +33,9 @@ export class QueryProcessor {
 		// var min = timeattrs.min.valueOf();
 		// var max = timeattrs.max.valueOf();
 		// var timedata= this.createtimefilter(min, max);
-		console.log(timedata);
-		await this.getdata(this.attributes, tempdata, this.timedata, this.filtervals, this.shouldvals, this.dashboardContext);
+		//console.log(timedata);
+		var timedata = this.timefunc.createtimefilter(this.timefield);
+		await this.getdata(this.attributes, tempdata, timedata, this.filtervals, this.shouldvals, this.dashboardContext);
 		this.realdata = tempdata;
 	}
 
@@ -76,14 +78,14 @@ export class QueryProcessor {
 		}
 	}
 
-	createtimefilter(min, max){
-		var tempdict = {};
-		var tempdict1= {};
-		tempdict1["gte"] = min;
-		tempdict1["lte"] = max;
-		tempdict[this.timefield] = tempdict1;
-		return tempdict;
-	}
+	// createtimefilter(min, max){
+	// 	var tempdict = {};
+	// 	var tempdict1= {};
+	// 	tempdict1["gte"] = min;
+	// 	tempdict1["lte"] = max;
+	// 	tempdict[this.timefield] = tempdict1;
+	// 	return tempdict;
+	// }
 
 	filterBarData(){
   		var filterbardata = this.filterBar.getFilters();

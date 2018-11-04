@@ -41,7 +41,7 @@ function InsightProvider(Private) {
       optionsTemplate: optionsTemplate,
     },
     visualization: InsightVisualizationProvider,
-    requestHandler: InsightRequestHandlerProvider,
+    requestHandler: insightRequestHandler,
     responseHandler: 'none',
     options: { showIndexSelection: true, showFilterBar: true },
   });

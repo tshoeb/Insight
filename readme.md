@@ -15,8 +15,8 @@ Insight, on the otherhand, is developed for generic use cases for any and all so
 Before running you need to do the following steps:
 - Run ```npm install```
 - Add the following lines to the elasticsearch.yml file
-```http.cors.enabled: true```
-```http.cors.allow-origin: "*"```
+```http.cors.enabled: true```<br />
+```http.cors.allow-origin: "*"```<br />
 ```http.cors.allow-headers: "kbn-version, X-Requested-With, Content-Type, Content-Length, Authorization"```
 
 ### Installing
@@ -26,8 +26,8 @@ To use the plugin simply clone it into your locally installed Kibana's Plugin fo
 
 Developed by: [Talal Shoeb](https://www.linkedin.com/in/talal-shoeb/)
 
-Supervisor: Dr. Ting Yu
-Co. Supervisor: Dr. Yury Zhauniarovich
+Supervisor: Dr. Ting Yu<br />
+Co. Supervisor: Dr. Yury Zhauniarovich<br />
 Visualization Expert: Michael J. Aupetit
 
 ## Acknowledgements

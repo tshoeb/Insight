@@ -1,3 +1,4 @@
 node_modules/
 es_data_files/
 package-lock.json
+.DS_Store

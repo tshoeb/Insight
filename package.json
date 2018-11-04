@@ -1,6 +1,6 @@
 {
-  "name": "vizfilt",
-  "version": "6.1.5",
+  "name": "insight",
+  "version": "6.4.3",
   "dependencies": {
     "d3": "5.5.0",
     "d3-svg": "0.2.2",

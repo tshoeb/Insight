@@ -17,6 +17,8 @@ module.controller('InsightOptionsController', ($scope, client, esFactory, Privat
 	$scope.attr = "";
 	$scope.topn = 0;
 	$scope.compdata = [];
+	$scope.termlist = [];
+	$scope.timelist = [];
 	$scope.selected = false;
 	var tempdict = {};
 	tempdict['topn'] = 10;
@@ -34,9 +36,29 @@ module.controller('InsightOptionsController', ($scope, client, esFactory, Privat
 	}).then(function (body) {
 		for (var key in body) {
 			if(key != '.kibana'){
-				console.log(key);
-				var termdic = (body[key]['mappings']['requests']['properties'])
-				$scope.termlist = Object.keys(termdic);
+				//console.log(key);
+				var tempword = body[key]['mappings'];
+				var termdic = (body[key]['mappings'][Object.keys(tempword)[0]]['properties'])
+				for (var key2 in termdic) {
+					var checkfields = Object.keys(termdic[key2]);
+					if(checkfields.includes("fields")){
+						var checkkeyword = Object.keys(termdic[key2]['fields']);
+						if(checkkeyword.includes("keyword")){
+							$scope.termlist.push(key2+".keyword");
+						}
+					} else{
+						$scope.termlist.push(key2);
+					}
+				}
+				for (var key3 in termdic) {
+					var checktime = Object.keys(termdic[key3]);
+					if(checktime.includes("type")){
+						if(termdic[key3]['type'] == "date"){
+							$scope.timelist.push(key3);
+						}
+					}
+				}
+				//$scope.termlist = Object.keys(termdic);
 			}
 		}
 		$scope.selected = true;

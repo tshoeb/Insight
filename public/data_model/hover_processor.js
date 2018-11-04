@@ -2,6 +2,7 @@ export class HoverProcessor {
 	constructor(visData){
 		this.index = visData['index'];
 		this.timefilter = visData['timefilter'];
+		this.timefield =  visData['timefield'];
 		this.es = visData['es'];
 		this.ogdata = visData['realdata'];
 	}
@@ -10,6 +11,7 @@ export class HoverProcessor {
 		var timeattrs = this.timefilter.getBounds();
 		var min = timeattrs.min.valueOf();
 		var max = timeattrs.max.valueOf();
+		var timedata= this.createtimefilter(min, max);
 		var data = {};
 		for (var j=0; j < this.ogdata.length; j++){
 		    var arrayItem = this.ogdata[j]
@@ -25,7 +27,7 @@ export class HoverProcessor {
 				        if (String(c_attr_val).includes('others') == false && String(c_attr_val).includes('_') == false){
 					        var exlist = this.jsoner(attr_name, attr_val, c_attr_name, c_attr_val);
 					        var doc_count = "";
-					        await this._runes_relation(c_attr_name, exlist, min, max, filterlist).then(function(result) {
+					        await this._runes_relation(c_attr_name, exlist, timedata, filterlist).then(function(result) {
 							    doc_count = result;
 							});
 					        var og_doc_count = dataItem['doc_count'];
@@ -35,7 +37,7 @@ export class HoverProcessor {
 					    	filterlist = this.jsoner_others(c_attr_name);
 					    	var exlist = this.jsoner(attr_name, attr_val, "none", c_attr_val);
 					        var doc_count = "";
-					        await this._runes_relation(c_attr_name, exlist, min, max, filterlist).then(function(result) {
+					        await this._runes_relation(c_attr_name, exlist, timedata, filterlist).then(function(result) {
 							    doc_count = result;
 							});
 					        var og_doc_count = dataItem['doc_count'];
@@ -47,7 +49,7 @@ export class HoverProcessor {
 					        var exlist = this.jsoner(c_attr_name, c_attr_val, "none", "none");
 					        filterlist = this.jsoner_others(attr_name);
 					        var doc_count = "";
-					        await this._runes_relation(c_attr_name, exlist, min, max, filterlist).then(function(result) {
+					        await this._runes_relation(c_attr_name, exlist, timedata, filterlist).then(function(result) {
 							    doc_count = result;
 							});
 					        var og_doc_count = dataItem['doc_count'];
@@ -60,7 +62,7 @@ export class HoverProcessor {
 					    	filterlist = filterlist1.concat(filterlist2)
 					    	var exlist = [];
 					        var doc_count = "";
-					        await this._runes_relation(c_attr_name, exlist, min, max, filterlist).then(function(result) {
+					        await this._runes_relation(c_attr_name, exlist, timedata, filterlist).then(function(result) {
 							    doc_count = result;
 							});
 					        var og_doc_count = dataItem['doc_count'];
@@ -72,6 +74,15 @@ export class HoverProcessor {
 		    }
 	    }
     	return data;
+	}
+
+	createtimefilter(min, max){
+		var tempdict = {};
+		var tempdict1= {};
+		tempdict1["gte"] = min;
+		tempdict1["lte"] = max;
+		tempdict[this.timefield] = tempdict1;
+		return tempdict;
 	}
 
 	jsoner(attr_name, attr_val, c_attr_name, c_attr_val){
@@ -116,7 +127,7 @@ export class HoverProcessor {
 		return filterlist;
 	}
 
-	async _runes_relation(c_attr_name, exlist, min, max, filterlist){
+	async _runes_relation(c_attr_name, exlist, timedata, filterlist){
 		var datatogive = "";
 
 		var temp = await this.es.search({
@@ -128,12 +139,7 @@ export class HoverProcessor {
 		            	"must": exlist,
 		            	"must_not": filterlist,
 		                "filter": {
-		                    "range": {
-		                        "epoch": {
-		                            "gte": min,
-		                            "lte": max
-		                        }
-		                    }
+		                    "range": timedata
 		                }
 		            }
 		        },

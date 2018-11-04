@@ -6,9 +6,10 @@ const lucenequeryparser = require('lucene-query-parser');
 
 export class QueryProcessor {
 
-	constructor(index, attributes, realdata, filtervals, shouldvals, timefilter, es, dashboardContext, filterBar, getAppState, filterManager){
+	constructor(index, attributes, timedata, realdata, filtervals, shouldvals, es, dashboardContext, filterBar, getAppState, filterManager){
 		this.index = index;
 		this.attributes= attributes;
+		this.timedata = timedata;
 		this.realdata = realdata;
 		this.timefilter = timefilter;
 		this.es = es;
@@ -27,14 +28,16 @@ export class QueryProcessor {
 
 	async _processAsync(){
 		var tempdata = [];
-		var timeattrs = this.timefilter.getBounds();
-		var min = timeattrs.min.valueOf();
-		var max = timeattrs.max.valueOf();
-		await this.getdata(this.attributes, tempdata, min, max, this.filtervals, this.shouldvals, this.dashboardContext);
+		// var timeattrs = this.timefilter.getBounds();
+		// var min = timeattrs.min.valueOf();
+		// var max = timeattrs.max.valueOf();
+		// var timedata= this.createtimefilter(min, max);
+		console.log(timedata);
+		await this.getdata(this.attributes, tempdata, this.timedata, this.filtervals, this.shouldvals, this.dashboardContext);
 		this.realdata = tempdata;
 	}
 
-	async getdata(attributes, tempdata, min, max, filtervals, shouldvals, dashboardContext){
+	async getdata(attributes, tempdata, timedata, filtervals, shouldvals, dashboardContext){
 		var filterlist = [];
 		var shouldlist = [];
 		this.filterBarData();
@@ -49,19 +52,19 @@ export class QueryProcessor {
 		    var exlist = [];
 		    
 		    if (filtervals.length == 0 && shouldvals.length == 0){
-				await this._runes(current_attribute, current_topn, min, max, fqdata, filtervals_json, shouldvals_json, 0)
+				await this._runes(current_attribute, current_topn, timedata, fqdata, filtervals_json, shouldvals_json, 0)
 				exlist = this.jsoner(fqdata, current_attribute);
-				await this._runes_others(current_attribute, fqdata, min, max, exlist, filtervals_json, shouldvals_json, 0);
+				await this._runes_others(current_attribute, fqdata, timedata, exlist, filtervals_json, shouldvals_json, 0);
 			}
 
 			if (filtervals.length != 0 || shouldvals.length != 0){
 
 				if (filterlist.includes(current_attribute) || shouldlist.includes(current_attribute)){ 
-					await this._runes_filter(current_attribute, fqdata, min, max, filtervals_json, shouldvals_json, shouldvals.length > 0 ? 1 : 0);
+					await this._runes_filter(current_attribute, fqdata, timedata, filtervals_json, shouldvals_json, shouldvals.length > 0 ? 1 : 0);
 				} else{
-					await this._runes(current_attribute, current_topn, min, max, fqdata, filtervals_json, shouldvals_json, shouldvals.length > 0 ? 1 : 0)
+					await this._runes(current_attribute, current_topn, timedata, fqdata, filtervals_json, shouldvals_json, shouldvals.length > 0 ? 1 : 0)
 					exlist = this.jsoner(fqdata, current_attribute);
-					await this._runes_others(current_attribute, fqdata, min, max, exlist, filtervals_json, shouldvals_json, shouldvals.length > 0 ? 1 : 0);
+					await this._runes_others(current_attribute, fqdata, timedata, exlist, filtervals_json, shouldvals_json, shouldvals.length > 0 ? 1 : 0);
 				}
 				
 			}
@@ -71,6 +74,15 @@ export class QueryProcessor {
 			    value: fqdata
 			});
 		}
+	}
+
+	createtimefilter(min, max){
+		var tempdict = {};
+		var tempdict1= {};
+		tempdict1["gte"] = min;
+		tempdict1["lte"] = max;
+		tempdict[this.timefield] = tempdict1;
+		return tempdict;
 	}
 
 	filterBarData(){
@@ -176,7 +188,7 @@ export class QueryProcessor {
 		return filtervals_json;
 	}
 
-	async _runes(attr, topn, min, max, fqdata, filtervals, shouldvals, mnum){
+	async _runes(attr, topn, timedata, fqdata, filtervals, shouldvals, mnum){
 		var datatopass = [];
 		var temp = await this.es.search({
 			"index": this.index,
@@ -187,12 +199,7 @@ export class QueryProcessor {
 		            	"should": shouldvals,
 		            	"must": filtervals,
 		                "filter": {
-		                    "range": {
-		                        "epoch": {
-		                            "gte": min,
-		                            "lte": max
-		                        }
-		                    }
+		                    "range": timedata
 		                }
 		            }
 		        },
@@ -218,7 +225,7 @@ export class QueryProcessor {
 		});
 	}
 
-	async _runes_others(attr, fqdata, min, max, exlist, filtervals, shouldvals, mnum){
+	async _runes_others(attr, fqdata, timedata, exlist, filtervals, shouldvals, mnum){
 		var temp = await this.es.search({
 			"index": this.index,
 		  	"body": {
@@ -230,12 +237,7 @@ export class QueryProcessor {
 		            	"should": shouldvals,
 		            	"must": filtervals,
 		                "filter": {
-		                    "range": {
-		                        "epoch": {
-		                            "gte": min,
-		                            "lte": max
-		                        }
-		                    }
+		                    "range": timedata
 		                }
 		            }
 		        },
@@ -256,7 +258,7 @@ export class QueryProcessor {
 		});
 	}
 
-	async _runes_filter(attr, fqdata, min, max, filtervals, shouldvals, mnum){
+	async _runes_filter(attr, fqdata, timedata, filtervals, shouldvals, mnum){
 		var temp = await this.es.search({
 			"index": this.index,
 		  	"body": {
@@ -267,12 +269,7 @@ export class QueryProcessor {
 		            	"should": shouldvals,
 		            	"must": filtervals,
 		                "filter": {
-		                    "range": {
-		                        "epoch": {
-		                            "gte": min,
-		                            "lte": max
-		                        }
-		                    }
+		                    "range": timedata
 		                }
 		            }
 		        },

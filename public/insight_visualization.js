@@ -6,7 +6,7 @@ import { FilterProcessor } from './data_model/filter_processor';
 const d3 = require('d3');
 const d3_svg = require('d3-svg');
 
-class VisController {
+class InsightVisualizationProvider {
   constructor(el, vis) {
     this.vis = vis;
     this.el = el;
@@ -21,6 +21,7 @@ class VisController {
   }
 
   render(visData, status) {
+    console.log(visData);
     if (visData['realdata'] != undefined ){
       this.buildit(visData['attributes'], visData['realdata'], visData);
     }
@@ -409,4 +410,4 @@ class VisController {
   }
 };
 
-export { VisController };
+export { InsightVisualizationProvider };

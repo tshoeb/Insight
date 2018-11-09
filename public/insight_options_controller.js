@@ -20,6 +20,7 @@ module.controller('InsightOptionsController', ($scope, client, esFactory, Privat
 	$scope.termlist = [];
 	$scope.timelist = [];
 	$scope.selected = false;
+	$scope.orderlist = ["descending", "ascending"];
 	var tempdict = {};
 	tempdict['topn'] = 10;
 	if($scope.vis.params.attributes.length != 0){

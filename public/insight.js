@@ -35,6 +35,7 @@ function InsightProvider(Private) {
         filterbarvals: [],
         fpc: "",
         timefield: "",
+        rectorder: "descending",
       },
     },
     editorConfig: {

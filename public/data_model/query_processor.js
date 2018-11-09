@@ -6,9 +6,10 @@ const lucenequeryparser = require('lucene-query-parser');
 
 export class QueryProcessor {
 
-	constructor(index, attributes, timefield, timefunc, realdata, filtervals, shouldvals, es, dashboardContext, filterBar, getAppState, filterManager){
+	constructor(index, attributes, rectorder, timefield, timefunc, realdata, filtervals, shouldvals, es, dashboardContext, filterBar, getAppState, filterManager){
 		this.index = index;
 		this.attributes= attributes;
+		this.rectorder = rectorder;
 		this.timefield = timefield;
 		this.timefunc = timefunc;
 		this.realdata = realdata;
@@ -192,6 +193,7 @@ export class QueryProcessor {
 
 	async _runes(attr, topn, timedata, fqdata, filtervals, shouldvals, mnum){
 		var datatopass = [];
+		var order = this.rectorder;
 		var temp = await this.es.search({
 			"index": this.index,
 		  	"body": {
@@ -217,13 +219,23 @@ export class QueryProcessor {
 		  	}
 		}).then(function(result) {
 			var resultlist= result['aggregations']['attr']['buckets'];
-			
-			for (var q=0; q < resultlist.length; q++){
-				var tempdict = {};
-				tempdict ['key'] = resultlist[q]['key'];
-				tempdict['doc_count'] = resultlist[q]['doc_count'];
-				fqdata.push(tempdict);
+
+			if (order == "descending"){
+				for (var q=resultlist.length-1; q >= 0; q--){
+					var tempdict = {};
+					tempdict ['key'] = resultlist[q]['key'];
+					tempdict['doc_count'] = resultlist[q]['doc_count'];
+					fqdata.push(tempdict);
+				}
+			} else {
+				for (var q=0; q < resultlist.length; q++){
+					var tempdict = {};
+					tempdict ['key'] = resultlist[q]['key'];
+					tempdict['doc_count'] = resultlist[q]['doc_count'];
+					fqdata.push(tempdict);
+				}
 			}
+
 		});
 	}
 
@@ -261,6 +273,7 @@ export class QueryProcessor {
 	}
 
 	async _runes_filter(attr, fqdata, timedata, filtervals, shouldvals, mnum){
+		var order = this.rectorder;
 		var temp = await this.es.search({
 			"index": this.index,
 		  	"body": {
@@ -286,12 +299,21 @@ export class QueryProcessor {
 		  	}
 		}).then(function(result) {
 			var resultlist= result['aggregations']['attr']['buckets'];
-			
-			for (var q=0; q < resultlist.length; q++){
-				var tempdict = {};
-				tempdict ['key'] = resultlist[q]['key'];
-				tempdict['doc_count'] = resultlist[q]['doc_count'];
-				fqdata.push(tempdict);
+
+			if (order == "descending"){
+				for (var q=resultlist.length-1; q >= 0; q--){
+					var tempdict = {};
+					tempdict ['key'] = resultlist[q]['key'];
+					tempdict['doc_count'] = resultlist[q]['doc_count'];
+					fqdata.push(tempdict);
+				}
+			} else {
+				for (var q=0; q < resultlist.length; q++){
+					var tempdict = {};
+					tempdict ['key'] = resultlist[q]['key'];
+					tempdict['doc_count'] = resultlist[q]['doc_count'];
+					fqdata.push(tempdict);
+				}
 			}
 		});
 	}

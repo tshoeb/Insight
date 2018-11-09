@@ -5,6 +5,11 @@
 			<select ng-model="vis.params.timefield" ng-options="timeterm as timeterm for timeterm in timelist">
 			</select>
 		</div>
+		<div class="rectorder">
+			<label>Order of data in the bar:</label>
+			<select ng-model="vis.params.rectorder" ng-options="orderop as orderop for orderop in orderlist">
+			</select>
+		</div>
 		<fieldset  class="thechooser-in" data-ng-repeat="choice in choices" ng-show="selected">
 			<div class="thechooser-out">
 				<div class="attr">
@@ -15,7 +20,7 @@
 
 				<div class="topn">
 					<label>Top N Values:</label>
-			  		<input type="number" ng-model="choice.topn" min="10" max="100"/>
+			  		<input type="number" ng-model="choice.topn" min="1" max="30"/>
 			  	</div>
 			</div>
 	  		<button class="remove" ng-click="removeChoice($index)">Remove</button>

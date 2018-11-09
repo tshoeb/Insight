@@ -1,17 +1,19 @@
 export class HoverProcessor {
 	constructor(visData){
 		this.index = visData['index'];
-		this.timefilter = visData['timefilter'];
-		this.timefield =  visData['timefield'];
+		// this.timefilter = visData['timefilter'];
+		// this.timefield =  visData['timefield'];
 		this.es = visData['es'];
 		this.ogdata = visData['realdata'];
+		this.timefield = visData['timefield'];
+		this.timefunc = visData['timefunc'];
 	}
 
 	async getrelations(attr_name, attr_val){
-		var timeattrs = this.timefilter.getBounds();
-		var min = timeattrs.min.valueOf();
-		var max = timeattrs.max.valueOf();
-		var timedata= this.createtimefilter(min, max);
+		//var timeattrs = this.timefilter.getBounds();
+		// var min = timeattrs.min.valueOf();
+		// var max = timeattrs.max.valueOf();
+		var timedata= this.timefunc.createtimefilter(this.timefield);
 		var data = {};
 		for (var j=0; j < this.ogdata.length; j++){
 		    var arrayItem = this.ogdata[j]
@@ -76,14 +78,14 @@ export class HoverProcessor {
     	return data;
 	}
 
-	createtimefilter(min, max){
-		var tempdict = {};
-		var tempdict1= {};
-		tempdict1["gte"] = min;
-		tempdict1["lte"] = max;
-		tempdict[this.timefield] = tempdict1;
-		return tempdict;
-	}
+	// createtimefilter(min, max){
+	// 	var tempdict = {};
+	// 	var tempdict1= {};
+	// 	tempdict1["gte"] = min;
+	// 	tempdict1["lte"] = max;
+	// 	tempdict[this.timefield] = tempdict1;
+	// 	return tempdict;
+	// }
 
 	jsoner(attr_name, attr_val, c_attr_name, c_attr_val){
 		var exlist = [];

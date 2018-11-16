@@ -11,7 +11,7 @@ export function InsightRequestHandlerProvider(Private, es, timefilter, serviceSe
   const dashboardContext = Private(dashboardContextProvider);
   const filterManager = Private(FilterManagerProvider);
   const filterBar = Private(FilterBarQueryFilterProvider);
-  const timefunc = new TimeProcessor(timefilter)
+  const timefunc = new TimeProcessor(timefilter);
 
   return {
 

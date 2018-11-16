@@ -107,6 +107,7 @@ class InsightVisualizationProvider {
         .rangeRound([height - margin.bottom, margin.top]);
 
     var colorlist = [];
+    var colordict = {};
     var colornum = 1.00;
     var topnlist = [];
 
@@ -114,27 +115,27 @@ class InsightVisualizationProvider {
       topnlist.push(visData['attributes'][h]['topn'])
     }
 
-    var topnmax = Math.max( ...topnlist );
+    // var topnmax = Math.max( ...topnlist );
 
-    for (var r=0; r < topnmax+1; r++){
-      var intercolor = "";
-      if (r < 11){
-        intercolor = d3.interpolateBlues(colornum);
-      } else {
-        intercolor = d3.interpolateGreens(colornum);
-      }
+    // for (var r=0; r < topnmax+1; r++){
+    //   var intercolor = "";
+    //   if (r < 11){
+    //     intercolor = d3.interpolateBlues(colornum);
+    //   } else {
+    //     intercolor = d3.interpolateGreens(colornum);
+    //   }
       
-      var colorprocess = tinycolor(intercolor);
-      colorlist.push(colorprocess.toHexString());
-      if (r == 11){
-        colornum = 0.90;
-      } else {
-        colornum = colornum - 0.05;
-      }
-    }
+    //   var colorprocess = tinycolor(intercolor);
+    //   colorlist.push(colorprocess.toHexString());
+    //   if (r == 11){
+    //     colornum = 0.90;
+    //   } else {
+    //     colornum = colornum - 0.05;
+    //   }
+    // }
 
     var colors = iwanthueApi().generate(
-      30,                   // Number of colors to generate
+      (visData['attributes'].length),                   // Number of colors to generate
       function(color){     // This function filters valid colors...
         var hcl = color.hcl();
         return hcl[0]>=0 && hcl[0]<=360 && // ...for a specific range of hues
@@ -147,12 +148,46 @@ class InsightVisualizationProvider {
 
     // Sort colors by differentiation
     var sortedColors = iwanthueApi().diffSort(colors);
-    var z = d3.scaleOrdinal(sortedColors);
+    for (var n=0; n < sortedColors.length; n++){      
+      if(sortedColors[n] != undefined){
+        var colorprocess = tinycolor(sortedColors[n].toString());
+        //var colorprocess2 = tinycolor(sortedColors[n+1].toString());
+        //console.log(typeof colorprocess);
+        var thealpha = 1;
+        var colorattr = rawdata[n]['value'];
+        if (visData['rectorder'] == "descending"){
+          for (var r=topnlist[n]; r >= 0 ; r--){
+            colorprocess.setAlpha(thealpha);
+            //colorlist.push(colorprocess.darken(n).toRgbString());
+            var colorattr1 = colorattr[r];
+            if (colorattr1 != undefined){
+              //colordict[colorattr1['key']]= blendRGBColors(colorprocess.toRgbString(), colorprocess2.toRgbString(), thealpha)//colorprocess.darken(n).toRgbString()
+              colordict[colorattr1['key']]= colorprocess.darken(n).toRgbString()
+              thealpha = thealpha - 0.07;
+            }
+          }
+        } else {
+          for (var r=0; r < topnlist[n]; r++){
+            colorprocess.setAlpha(thealpha);
+            //colorlist.push(colorprocess.darken(n).toRgbString());
+            var colorattr1 = colorattr[r];
+            if (colorattr1 != undefined){
+              //colordict[colorattr1['key']]= blendRGBColors(colorprocess.toRgbString(), colorprocess2.toRgbString(), thealpha)//colorprocess.darken(n).toRgbString()
+              colordict[colorattr1['key']]= colorprocess.darken(n).toRgbString();
+              thealpha = thealpha - 0.07;
+            }
+          }
+        }
+      }
+    }
+
+    //console.log(colordict);
+
 
     // if (visData['rectorder'] == "descending"){
-    //   var z = d3.scaleOrdinal(colorlist.reverse());
+    //   var z = colorlist.reverse();//d3.scaleOrdinal(
     // } else {
-    //   var z = d3.scaleOrdinal(colorlist);
+    //   var z = colorlist;
 
     // }
 
@@ -213,10 +248,11 @@ class InsightVisualizationProvider {
       .data(series)
       .enter().append("g")
         .attr("fill", function(d) { 
+          //console.log(d);
           if (String(info(d.key)).includes("others")){
             return "#031832";
           } else {
-            return z(d.key);
+            return colordict[d.key];
           }
         })
         .attr("attrval", function(d) { return info(d.key); })
@@ -365,22 +401,22 @@ class InsightVisualizationProvider {
         .attr("transform", "translate(" + margin.left + ",0)")
         .call(d3.axisLeft(y));
 
-    var tickstxt = ticksinfo['_groups'][0][0].innerHTML;
-    var tickvalsearch = 0;
-    var tickvals = [];
+    // var tickstxt = ticksinfo['_groups'][0][0].innerHTML;
+    // var tickvalsearch = 0;
+    // var tickvals = [];
 
-    do{
-      var tickvalindex = tickstxt.indexOf("translate", tickvalsearch);
-      var tickbracketindex = tickstxt.indexOf("(", tickvalindex);
-      var tickcommaindex = tickstxt.indexOf(",", tickvalindex);
-      var testinout = tickvalindex + "-" + tickbracketindex + "-" + tickcommaindex;
-      console.log(testinout);
-      tickvals.push(parseFloat(tickstxt.substring(tickbracketindex+1, tickcommaindex)-172.0));
-      tickvalsearch = tickvalindex+1;
-    }
-    while (tickstxt.indexOf("translate", tickvalsearch) != -1);
+    // do{
+    //   var tickvalindex = tickstxt.indexOf("translate", tickvalsearch);
+    //   var tickbracketindex = tickstxt.indexOf("(", tickvalindex);
+    //   var tickcommaindex = tickstxt.indexOf(",", tickvalindex);
+    //   var testinout = tickvalindex + "-" + tickbracketindex + "-" + tickcommaindex;
+    //   //console.log(testinout);
+    //   tickvals.push(parseFloat(tickstxt.substring(tickbracketindex+1, tickcommaindex)));
+    //   tickvalsearch = tickvalindex+1;
+    // }
+    // while (tickstxt.indexOf("translate", tickvalsearch) != -1);
 
-    console.log(tickvals);
+    //console.log(tickvals);
 
     //var presorttabledata = [];
 
@@ -418,6 +454,7 @@ class InsightVisualizationProvider {
 
     for(var s=0; s < rawdata.length; s++){
       var tableattr = rawdata[s]['key'];
+      var tablex = x(tableattr);
       var tableattrvals = rawdata[s]['value'];
       var tabledata=[];
       var columns = [];
@@ -432,15 +469,15 @@ class InsightVisualizationProvider {
           tabledata.push(temptabledict);
         }
       }
-      createtable(tableattr, tabledata, columns, tickvals[s], tablewidth);
+      createtable(tableattr, tabledata, columns, tablex, tablewidth);
     }
 
-    function createtable(attrname, tabledata, columns, tickval, tablewidth) {
+    function createtable(attrname, tabledata, columns, tablex, tablewidth) {
       var table = d3.select("#table")
         .append("table")
         .attr("id", attrname+"-table")
         .style("top", "550px")
-        .style("left", tickval+"px")
+        .style("left", tablex+"px")
         .style("position", "absolute");
       var thead = table.append('thead');
       var tbody = table.append('tbody');
@@ -520,12 +557,14 @@ class InsightVisualizationProvider {
       return d3.max(serie, function(d) { return d[1]; });
     }
 
+    function blendRGBColors(c0, c1, p) {
+      var f=c0.split(","),t=c1.split(","),R=parseInt(f[0].slice(4)),G=parseInt(f[1]),B=parseInt(f[2]);
+      return "rgb("+(Math.round((parseInt(t[0].slice(4))-R)*p)+R)+","+(Math.round((parseInt(t[1])-G)*p)+G)+","+(Math.round((parseInt(t[2])-B)*p)+B)+")";
+    }
+
     function tablehighlight(attr_name, attr_val, color){
       var tableattrid = attr_name+"-table";
-      console.log("------------------");
-      console.log(tableattrid);
       var t = document.getElementById(String(tableattrid));
-      console.log(t);
       var tds = t.getElementsByTagName("td");
       for (var b=0; b < tds.length; b++){
         if(tds[b].innerHTML == attr_val){

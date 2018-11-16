@@ -13,6 +13,7 @@ module.service('client', function (esFactory) {
 });
 
 module.controller('InsightOptionsController', ($scope, client, esFactory, Private) => {
+	$scope.vis.params.timefield = $scope.vis.indexPattern.timeFieldName;
 	var indexlist = [];
 	$scope.attr = "";
 	$scope.topn = 0;

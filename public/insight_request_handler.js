@@ -4,9 +4,9 @@ import { TimeProcessor } from './data_model/time_processor';
 import { dashboardContextProvider } from 'plugins/kibana/dashboard/dashboard_context';
 import { FilterBarQueryFilterProvider } from 'ui/filter_bar/query_filter';
 import { FilterManagerProvider } from 'ui/filter_manager';
-//import { timefilter } from 'ui/timefilter';
+import { timefilter } from 'ui/timefilter';
 
-export function InsightRequestHandlerProvider(Private, es, timefilter, serviceSettings, getAppState) {
+export function InsightRequestHandlerProvider(Private, es, serviceSettings, getAppState) {
 
   const dashboardContext = Private(dashboardContextProvider);
   const filterManager = Private(FilterManagerProvider);

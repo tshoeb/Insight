@@ -22,12 +22,15 @@ Before running you need to do the following steps:
 ### Installing
 To use the plugin simply clone it into your locally installed Kibana's Plugin folder.
 
-### Compatability
+### Compatibility
 
 The plugin is currently compatible with the following versions:
 - 6.1
 - 6.2
 - 6.3
+- 6.4
+
+For version 6.4, use the master branch. For version 6.3, 6.2, & 6.1 use branch named 6.3.
 
 ## Authors
 

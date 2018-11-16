@@ -58,7 +58,7 @@ export class HoverProcessor {
 					        currentbar[String(c_attr_val)] = doc_count/parseFloat(og_doc_count);
 					    }
 					    if (String(c_attr_val).includes('others') == true){
-					    	console.log("yellow");
+					    	//console.log("yellow");
 					    	var filterlist1 = this.jsoner_others(c_attr_name);
 					    	var filterlist2 = this.jsoner_others(attr_name);
 					    	filterlist = filterlist1.concat(filterlist2)

@@ -162,7 +162,11 @@ class InsightVisualizationProvider {
             var colorattr1 = colorattr[r];
             if (colorattr1 != undefined){
               //colordict[colorattr1['key']]= blendRGBColors(colorprocess.toRgbString(), colorprocess2.toRgbString(), thealpha)//colorprocess.darken(n).toRgbString()
+<<<<<<< HEAD
               colordict[colorattr1['key']]= colorprocess.darken(n).toRgbString()
+=======
+              colordict[colorattr1['key']]= colorprocess.toRgbString()
+>>>>>>> 6.3
               thealpha = thealpha - 0.07;
             }
           }
@@ -173,7 +177,11 @@ class InsightVisualizationProvider {
             var colorattr1 = colorattr[r];
             if (colorattr1 != undefined){
               //colordict[colorattr1['key']]= blendRGBColors(colorprocess.toRgbString(), colorprocess2.toRgbString(), thealpha)//colorprocess.darken(n).toRgbString()
+<<<<<<< HEAD
               colordict[colorattr1['key']]= colorprocess.darken(n).toRgbString();
+=======
+              colordict[colorattr1['key']]= colorprocess.toRgbString();
+>>>>>>> 6.3
               thealpha = thealpha - 0.07;
             }
           }
@@ -585,6 +593,8 @@ class InsightVisualizationProvider {
         relations = result;
       });
 
+      console.log(relations);
+
       for (var q=0; q < xData.length; q++){
         var node_attrval = allthenodes.childNodes[q].getAttribute("attrval");
         var node_fill = allthenodes.childNodes[q].getAttribute("fill");
@@ -602,7 +612,8 @@ class InsightVisualizationProvider {
               
               var relation_count = relations[node_attrname][node_attrval];
 
-              if (Number(relation_count) != 0){
+              if (Number(relation_count) != 0 && String(relation_count) != "NaN"){
+                console.log(relation_count);
                 var new_height = (Number(node_height)*Number(relation_count));;
 
                 svg.append("rect")

@@ -162,11 +162,9 @@ class InsightVisualizationProvider {
             var colorattr1 = colorattr[r];
             if (colorattr1 != undefined){
               //colordict[colorattr1['key']]= blendRGBColors(colorprocess.toRgbString(), colorprocess2.toRgbString(), thealpha)//colorprocess.darken(n).toRgbString()
-<<<<<<< HEAD
-              colordict[colorattr1['key']]= colorprocess.darken(n).toRgbString()
-=======
+
+              //colordict[colorattr1['key']]= colorprocess.darken(n).toRgbString()
               colordict[colorattr1['key']]= colorprocess.toRgbString()
->>>>>>> 6.3
               thealpha = thealpha - 0.07;
             }
           }
@@ -177,11 +175,9 @@ class InsightVisualizationProvider {
             var colorattr1 = colorattr[r];
             if (colorattr1 != undefined){
               //colordict[colorattr1['key']]= blendRGBColors(colorprocess.toRgbString(), colorprocess2.toRgbString(), thealpha)//colorprocess.darken(n).toRgbString()
-<<<<<<< HEAD
-              colordict[colorattr1['key']]= colorprocess.darken(n).toRgbString();
-=======
+
+              //colordict[colorattr1['key']]= colorprocess.darken(n).toRgbString();
               colordict[colorattr1['key']]= colorprocess.toRgbString();
->>>>>>> 6.3
               thealpha = thealpha - 0.07;
             }
           }

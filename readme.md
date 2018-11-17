@@ -50,3 +50,8 @@ Special thanks to:
 * My Family
 * Fahim Dalvi
 * Syed Ali Hashim Moosavi
+
+## Screenshots
+
+![Insight View](https://github.com/tshoeb/Insight/blob/master/screenshots/insight_1.png)
+![Hover Mode](https://github.com/tshoeb/Insight/blob/master/screenshots/insight_2.png)

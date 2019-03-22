@@ -10,6 +10,10 @@
 			<select ng-model="vis.params.rectorder" ng-options="orderop as orderop for orderop in orderlist">
 			</select>
 		</div>
+		<div class="tableoption">
+			<label>Show values in table:</label>
+			<input type="checkbox" ng-model="vis.params.tableoption" name="tableoption" ng-true-value="'yes'" ng-false-value="'no'">
+		</div>
 		<fieldset  class="thechooser-in" data-ng-repeat="choice in choices" ng-show="selected">
 			<div class="thechooser-out">
 				<div class="attr">

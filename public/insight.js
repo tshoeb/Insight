@@ -36,6 +36,8 @@ function InsightProvider(Private) {
         fpc: "",
         timefield: "",
         rectorder: "descending",
+        tableoption: "yes",
+        colorlist: [],
       },
     },
     editorConfig: {

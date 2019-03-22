@@ -71,6 +71,7 @@ class InsightVisualizationProvider {
     const vizfiltDiv = document.createElement(`div`);
     vizfiltDiv.className = `myvis-div`;
 
+    //vizfiltDiv.innerHTML = "<defs> <pattern id='diagonal-stripe-2' patternUnits='userSpaceOnUse' width='10' height='10'> <image xlink:href='data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxMCcgaGVpZ2h0PScxMCc+CiAgPHJlY3Qgd2lkdGg9JzEwJyBoZWlnaHQ9JzEwJyBmaWxsPSd3aGl0ZScvPgogIDxwYXRoIGQ9J00tMSwxIGwyLC0yCiAgICAgICAgICAgTTAsMTAgbDEwLC0xMAogICAgICAgICAgIE05LDExIGwyLC0yJyBzdHJva2U9J2JsYWNrJyBzdHJva2Utd2lkdGg9JzInLz4KPC9zdmc+' x='0' y='0' width='10' height='10'> </image> </pattern> <mask id='mask-stripe'><rect x='0' y='0' width='100%' height='100%' fill='url(#diagonal-stripe-2)' /></mask> </defs><svg width=\"960\" height=\"600\"></svg><div id='table'></div>";
     vizfiltDiv.innerHTML = "<svg width=\"960\" height=\"600\"></svg><div id='table'></div>";
 
     vizfiltDiv.setAttribute('style', `height: 700px; width:600px;`);
@@ -133,27 +134,63 @@ class InsightVisualizationProvider {
     //     colornum = colornum - 0.05;
     //   }
     // }
+    // var addtocolorlist = function(talal2, newcolorlist) {
+    //   talal2.vis.params.colorlist.push(newcolorlist);
+    // }.bind(null, this)
 
-    var colors = iwanthueApi().generate(
-      (visData['attributes'].length),                   // Number of colors to generate
-      function(color){     // This function filters valid colors...
-        var hcl = color.hcl();
-        return hcl[0]>=0 && hcl[0]<=360 && // ...for a specific range of hues
-               hcl[1]>=0 && hcl[1]<=3 &&
-               hcl[2]>=0 && hcl[2]<=1.5;
-      },
-      false,               // Use Force Vector (for k-Means, use true)
-      50                   // Color steps (quality)
-    );
+    var othercolordict = {}
+    var ogcolorlist = [];
+    var thecolorcount = 0;
+    var sortedColors = []
 
-    // Sort colors by differentiation
-    var sortedColors = iwanthueApi().diffSort(colors);
-    for (var n=0; n < sortedColors.length; n++){      
-      if(sortedColors[n] != undefined){
-        var colorprocess = tinycolor(sortedColors[n].toString());
+    // if(visData['attributes'].length != 0){
+    //   ogcolorlist= (visData['colorlist']).slice();
+    //   thecolorcount = visData['attributes'].length-ogcolorlist.length;
+    //   if(thecolorcount<0){
+    //     thecolorcount = 0;
+    //   }
+    //   console.log("counting them colors")
+    //   console.log(thecolorcount);
+    // }
+    // console.log("before")
+    // console.log(ogcolorlist)
+
+    if(visData['attributes'].length == 0){
+
+      var colors = iwanthueApi().generate(
+        (30),// Number of colors to generate
+        function(color){     // This function filters valid colors...
+          var hcl = color.hcl();
+          return hcl[0]>=0 && hcl[0]<=360 && // ...for a specific range of hues
+                 hcl[1]>=0 && hcl[1]<=3 &&
+                 hcl[2]>=0 && hcl[2]<=1.5;
+        },
+        false,               // Use Force Vector (for k-Means, use true)
+        50                   // Color steps (quality)
+      );
+
+      // Sort colors by differentiation
+      sortedColors = iwanthueApi().diffSort(colors);
+      //console.log(sortedColors)
+      for(var z=0; z < sortedColors.length; z++){
+        //ogcolorlist.push(sortedColors[z].toString());
+        this.vis.params.colorlist.push(sortedColors[z].toString());
+      }
+      // this.vis.params.colorlist = ogcolorlist;
+      // console.log("after")
+      // console.log(ogcolorlist)
+      console.log(this.vis.params.colorlist)
+    }
+    
+    for (var n=0; n < visData['attributes'].length; n++){
+      // console.log("counting n")
+      // console.log(n)      
+      if(visData['colorlist'][n] != undefined){
+        var colorprocess = tinycolor(visData['colorlist'][n]);
         //var colorprocess2 = tinycolor(sortedColors[n+1].toString());
         //console.log(typeof colorprocess);
         var thealpha = 1;
+        othercolordict[rawdata[n]['key']] = visData['colorlist'][n];
         var colorattr = rawdata[n]['value'];
         if (visData['rectorder'] == "descending"){
           for (var r=topnlist[n]; r >= 0 ; r--){
@@ -185,7 +222,7 @@ class InsightVisualizationProvider {
       }
     }
 
-    //console.log(colordict);
+    console.log(colordict);
 
 
     // if (visData['rectorder'] == "descending"){
@@ -254,7 +291,15 @@ class InsightVisualizationProvider {
         .attr("fill", function(d) { 
           //console.log(d);
           if (String(info(d.key)).includes("others")){
-            return "#031832";
+            //console.log(d)
+            //return "#031832"
+            var theattr = (d.key).replace(/_others/, '')
+            if (othercolordict[theattr] != undefined){
+              return blendColors("#031832", othercolordict[theattr], 0.50);
+            } else {
+              return "#031832"
+            }
+            
           } else {
             return colordict[d.key];
           }
@@ -281,6 +326,23 @@ class InsightVisualizationProvider {
           var mypercent = ((myquant * 1.0 / tempquant)* 100).toFixed(2);
           return mypercent;
         })
+        // .attr("class", function(d) {
+        //   console.log(info(d.key))
+        //   if (String(info(d.key)).includes("others")){
+        //     return "pattern"
+        //   } else {
+        //     //console.log("eitherway");
+        //     return "plain";
+        //   }
+        // })
+        // .style("fill", function(d) {
+        //   console.log(d)
+        //   if (d[1]-d[0] == othervals[d.data.attribute]){
+        //     return "url(#diagonal-stripe-2)";
+        //   } else {
+        //     return "";
+        //   }
+        // })
       .on("mouseover", function(){
         d3.selectAll("line").remove();
         d3.selectAll(".highlightrects").remove();
@@ -306,7 +368,9 @@ class InsightVisualizationProvider {
         if (attrs.length > 1) {
           mouseoverrelations(attr_name, attr_val, allthenodes);
         }
-        tablehighlight(attr_name, attr_val, "yellow");
+        if (visData['tableoption'] == "yes"){
+          tablehighlight(attr_name, attr_val, "yellow");
+        }
       })
       .on("mouseout", function() {
         d3.selectAll("line").remove();
@@ -328,7 +392,10 @@ class InsightVisualizationProvider {
         }
         var attr_name = tempvals.childNodes[numtouse].getAttribute("attrname");
         var attr_val = tempvals.getAttribute("attrval");
-        tablehighlight(attr_name, attr_val, "white");
+        if (visData['tableoption'] == "yes"){
+          tablehighlight(attr_name, attr_val, "white");
+          d3.selectAll("td").style("background-color", "white")
+        }
       })
       .on("mousemove", function(d) {
         var tempvals = d3.select(this.parentNode)._groups[0][0];
@@ -456,24 +523,27 @@ class InsightVisualizationProvider {
     //   tabledata =  presorttabledata.reverse();
     // }
 
-    for(var s=0; s < rawdata.length; s++){
-      var tableattr = rawdata[s]['key'];
-      var tablex = x(tableattr);
-      var tableattrvals = rawdata[s]['value'];
-      var tabledata=[];
-      var columns = [];
-      columns.push(tableattr);
-      var tableothersdict = {};
-      tableothersdict [tableattr] = tableattr+"_others";
-      tabledata.push(tableothersdict);
-      for(var d=tableattrvals.length-1; d >= 0 ; d--){
-        if(String(tableattrvals[d]['key']).includes("others") == false){
-          var temptabledict = {};
-          temptabledict[tableattr] = tableattrvals[d]['key'];
-          tabledata.push(temptabledict);
+    if (visData['tableoption'] == "yes"){
+
+      for(var s=0; s < rawdata.length; s++){
+        var tableattr = rawdata[s]['key'];
+        var tablex = x(tableattr);
+        var tableattrvals = rawdata[s]['value'];
+        var tabledata=[];
+        var columns = [];
+        columns.push(tableattr);
+        var tableothersdict = {};
+        tableothersdict [tableattr] = tableattr+"_others";
+        tabledata.push(tableothersdict);
+        for(var d=tableattrvals.length-1; d >= 0 ; d--){
+          if(String(tableattrvals[d]['key']).includes("others") == false){
+            var temptabledict = {};
+            temptabledict[tableattr] = tableattrvals[d]['key'];
+            tabledata.push(temptabledict);
+          }
         }
+        createtable(tableattr, tabledata, columns, tablex, tablewidth);
       }
-      createtable(tableattr, tabledata, columns, tablex, tablewidth);
     }
 
     function createtable(attrname, tabledata, columns, tablex, tablewidth) {
@@ -531,6 +601,7 @@ class InsightVisualizationProvider {
             .duration(100)
             .attr('r', 10)
             .style('background-color', "white")
+          d3.selectAll("td").style("background-color", "white")
         });
     }
     
@@ -566,6 +637,11 @@ class InsightVisualizationProvider {
       return "rgb("+(Math.round((parseInt(t[0].slice(4))-R)*p)+R)+","+(Math.round((parseInt(t[1])-G)*p)+G)+","+(Math.round((parseInt(t[2])-B)*p)+B)+")";
     }
 
+    function blendColors(c0, c1, p) {
+        var f=parseInt(c0.slice(1),16),t=parseInt(c1.slice(1),16),R1=f>>16,G1=f>>8&0x00FF,B1=f&0x0000FF,R2=t>>16,G2=t>>8&0x00FF,B2=t&0x0000FF;
+        return "#"+(0x1000000+(Math.round((R2-R1)*p)+R1)*0x10000+(Math.round((G2-G1)*p)+G1)*0x100+(Math.round((B2-B1)*p)+B1)).toString(16).slice(1);
+    }
+
     function tablehighlight(attr_name, attr_val, color){
       var tableattrid = attr_name+"-table";
       var t = document.getElementById(String(tableattrid));
@@ -580,6 +656,8 @@ class InsightVisualizationProvider {
     var puttingthefilter = function(talal, tempdict) {
       talal.vis.params.fpc.putfilters(tempdict);
     }.bind(null, this)
+
+    
 
     async function mouseoverrelations(attr_name, attr_val, allthenodes) {
       const hp = new HoverProcessor(visData);
@@ -610,6 +688,7 @@ class InsightVisualizationProvider {
 
               if (Number(relation_count) != 0 && String(relation_count) != "NaN"){
                 console.log(relation_count);
+                tablehighlight(node_attrname, node_attrval, "grey");
                 var new_height = (Number(node_height)*Number(relation_count));;
 
                 svg.append("rect")

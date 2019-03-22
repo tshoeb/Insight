@@ -25,7 +25,7 @@ export function InsightRequestHandlerProvider(Private, es, serviceSettings, getA
       //const timefunc = new TimeProcessor(timefilter, vis.params.timefield);
       const fp = new FilterProcessor(vis.params.index, filterManager);
       vis.params.fpc = fp;
-      const qp = new QueryProcessor(vis.params.index, vis.params.attributes, vis.params.rectorder, vis.params.timefield, timefunc, vis.params.realdata, vis.params.filtervals, vis.params.shouldvals, es, dashboardContext, filterBar, getAppState, filterManager);
+      const qp = new QueryProcessor(vis.params.index, vis.params.attributes, vis.params.colorlist, vis.params.rectorder, vis.params.tableoption, vis.params.timefield, timefunc, vis.params.realdata, vis.params.filtervals, vis.params.shouldvals, es, dashboardContext, filterBar, getAppState, filterManager);
       return qp.processAsync();
     }
 

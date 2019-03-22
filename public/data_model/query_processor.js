@@ -6,10 +6,12 @@ const lucenequeryparser = require('lucene-query-parser');
 
 export class QueryProcessor {
 
-	constructor(index, attributes, rectorder, timefield, timefunc, realdata, filtervals, shouldvals, es, dashboardContext, filterBar, getAppState, filterManager){
+	constructor(index, attributes, colorlist, rectorder, tableoption, timefield, timefunc, realdata, filtervals, shouldvals, es, dashboardContext, filterBar, getAppState, filterManager){
 		this.index = index;
 		this.attributes= attributes;
+		this.colorlist = colorlist;
 		this.rectorder = rectorder;
+		this.tableoption = tableoption;
 		this.timefield = timefield;
 		this.timefunc = timefunc;
 		this.realdata = realdata;

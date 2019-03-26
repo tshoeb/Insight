@@ -1,10 +1,10 @@
-export default function (kibana) {
+export default kibana => new kibana.Plugin({
+  id: 'insight',
+  require: ['elasticsearch'],
 
-  return new kibana.Plugin({
-    uiExports: {
-      visTypes: [
-        'plugins/insight/insight'
-      ]
-    }
-  });
-}
+  uiExports: {
+    visTypes: ['plugins/insight/insight'],
+    styleSheetPaths: `${__dirname}/public/insight.scss`,
+  },
+
+});

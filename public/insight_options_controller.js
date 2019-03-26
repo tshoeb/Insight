@@ -1,6 +1,4 @@
 import { uiModules } from 'ui/modules';
-//import * as filterActions from 'ui/doc_table/actions/filter';
-
 
 const module = uiModules.get('kibana/insight', ['kibana'], ['elasticsearch']);
 
@@ -80,6 +78,9 @@ module.controller('InsightOptionsController', ($scope, client, esFactory, Privat
 
 	$scope.complete = function() {
 		$scope.vis.params.attributes = $scope.choices;
+		$('[data-test-subj=querySubmitButton]').click();
+		// console.log(testSubjSelector)
+		// testSubjSelector.click('querySubmitButton');
 	};
 
 	$scope.clearfilter = function(){

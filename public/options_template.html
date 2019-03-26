@@ -27,11 +27,23 @@
 			  		<input type="number" ng-model="choice.topn" min="1" max="30"/>
 			  	</div>
 			</div>
-	  		<button class="remove" ng-click="removeChoice($index)">Remove</button>
+			<button class="euiButton euiButton--danger euiButton--fill remove" type="button" ng-click="removeChoice($index)">
+		      <span class="euiButton__content">
+		        <span class="euiButton__text">Remove</span>
+		      </span>
+    		</button>
 	  	</fieldset>
-	  	<button class="addfields" ng-click="addNewChoice()">Add fields</button>
+	  	<button class="euiButton euiButton--secondary euiButton--fill addfields" type="button" ng-click="addNewChoice()">
+	      <span class="euiButton__content">
+	        <span class="euiButton__text">Add fields</span>
+	      </span>
+	    </button>
   	</form>
-  	<button class="compfields1" id="magicbutton" ng-click="complete()">Process</button>
+  	<button class="euiButton euiButton--primary euiButton--fill compfields1" type="button" id="magicbutton" ng-click="complete()">
+      <span class="euiButton__content">
+        <span class="euiButton__text">Process</span>
+      </span>
+    </button>
 
   	<md-button class="md-fab md-mini md-primary" aria-label="Use Android">
      	<md-icon md-svg-src="img/plus.svg"></md-icon>

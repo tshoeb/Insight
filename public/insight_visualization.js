@@ -69,10 +69,10 @@ class InsightVisualizationProvider {
 
     this.container.innerHTML = '';
     const vizfiltDiv = document.createElement(`div`);
-    vizfiltDiv.className = `myvis-div`;
+    vizfiltDiv.className = 'euiPageContentBody';//`myvis-div`;
 
     //vizfiltDiv.innerHTML = "<defs> <pattern id='diagonal-stripe-2' patternUnits='userSpaceOnUse' width='10' height='10'> <image xlink:href='data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxMCcgaGVpZ2h0PScxMCc+CiAgPHJlY3Qgd2lkdGg9JzEwJyBoZWlnaHQ9JzEwJyBmaWxsPSd3aGl0ZScvPgogIDxwYXRoIGQ9J00tMSwxIGwyLC0yCiAgICAgICAgICAgTTAsMTAgbDEwLC0xMAogICAgICAgICAgIE05LDExIGwyLC0yJyBzdHJva2U9J2JsYWNrJyBzdHJva2Utd2lkdGg9JzInLz4KPC9zdmc+' x='0' y='0' width='10' height='10'> </image> </pattern> <mask id='mask-stripe'><rect x='0' y='0' width='100%' height='100%' fill='url(#diagonal-stripe-2)' /></mask> </defs><svg width=\"960\" height=\"600\"></svg><div id='table'></div>";
-    vizfiltDiv.innerHTML = "<svg width=\"960\" height=\"600\"></svg><div id='table'></div>";
+    vizfiltDiv.innerHTML = "<svg id=\"mainviz\" width=\"960\" height=\"600\"></svg><div id='table'></div>";
 
     vizfiltDiv.setAttribute('style', `height: 700px; width:600px;`);
     this.container.appendChild(vizfiltDiv);
@@ -81,7 +81,7 @@ class InsightVisualizationProvider {
           width = 500 - margin.left - margin.right,
           height = 700- margin.top - margin.bottom;
 
-    var svg = d3.select("svg"),
+    var svg = d3.select("#mainviz"),
       margin = {top: 20, right: 20, bottom: 30, left: 60},
       width = +svg.attr("width") - margin.left - margin.right,
       height = +svg.attr("height") - margin.top - margin.bottom;
@@ -155,32 +155,33 @@ class InsightVisualizationProvider {
     // console.log("before")
     // console.log(ogcolorlist)
 
-    if(visData['attributes'].length == 0){
+    // if(visData['attributes'].length == 0){
 
-      var colors = iwanthueApi().generate(
-        (30),// Number of colors to generate
-        function(color){     // This function filters valid colors...
-          var hcl = color.hcl();
-          return hcl[0]>=0 && hcl[0]<=360 && // ...for a specific range of hues
-                 hcl[1]>=0 && hcl[1]<=3 &&
-                 hcl[2]>=0 && hcl[2]<=1.5;
-        },
-        false,               // Use Force Vector (for k-Means, use true)
-        50                   // Color steps (quality)
-      );
+    //   var colors = iwanthueApi().generate(
+    //     (30),// Number of colors to generate
+    //     function(color){     // This function filters valid colors...
+    //       var hcl = color.hcl();
+    //       return hcl[0]>=0 && hcl[0]<=360 && // ...for a specific range of hues
+    //              hcl[1]>=0 && hcl[1]<=3 &&
+    //              hcl[2]>=0 && hcl[2]<=1.5;
+    //     },
+    //     false,               // Use Force Vector (for k-Means, use true)
+    //     50                   // Color steps (quality)
+    //   );
 
-      // Sort colors by differentiation
-      sortedColors = iwanthueApi().diffSort(colors);
-      //console.log(sortedColors)
-      for(var z=0; z < sortedColors.length; z++){
-        //ogcolorlist.push(sortedColors[z].toString());
-        this.vis.params.colorlist.push(sortedColors[z].toString());
-      }
-      // this.vis.params.colorlist = ogcolorlist;
-      // console.log("after")
-      // console.log(ogcolorlist)
-      console.log(this.vis.params.colorlist)
-    }
+    //   // Sort colors by differentiation
+    //   sortedColors = iwanthueApi().diffSort(colors);
+    //   //console.log(sortedColors)
+    //   for(var z=0; z < sortedColors.length; z++){
+    //     //ogcolorlist.push(sortedColors[z].toString());
+    //     this.vis.params.colorlist.push(sortedColors[z].toString());
+    //   }
+    //   // this.vis.params.colorlist = ogcolorlist;
+    //   // console.log("after")
+    //   // console.log(ogcolorlist)
+    //   console.log(this.vis.params.colorlist)
+    // }
+    this.vis.params.colorlist = ["#FFFF00", "#1CE6FF", "#FF34FF", "#008941", "#006FA6", "#A30059", "#FFDBE5", "#7A4900", "#0000A6", "#63FFAC", "#B79762", "#004D43", "#8FB0FF", "#997D87", "#5A0007", "#809693", "#FEFFE6", "#1B4400", "#4FC601", "#3B5DFF", "#4A3B53", "#FF2F80", "#61615A", "#BA0900", "#6B7900", "#00C2A0", "#FFAA92", "#FF90C9", "#B903AA", "#D16100", "#DDEFFF", "#000035", "#7B4F4B", "#A1C299", "#300018", "#0AA6D8", "#013349", "#00846F", "#372101", "#FFB500", "#C2FFED", "#A079BF", "#CC0744", "#C0B9B2", "#C2FF99", "#001E09", "#00489C", "#6F0062", "#0CBD66", "#EEC3FF", "#456D75", "#B77B68", "#7A87A1", "#788D66", "#885578", "#FAD09F", "#FF8A9A", "#D157A0", "#BEC459", "#456648", "#0086ED", "#886F4C", "#34362D", "#B4A8BD", "#00A6AA", "#452C2C", "#636375", "#A3C8C9", "#FF913F", "#938A81", "#575329", "#00FECF", "#B05B6F", "#8CD0FF", "#3B9700", "#04F757", "#C8A1A1", "#1E6E00", "#7900D7", "#A77500", "#6367A9", "#A05837", "#6B002C", "#772600", "#D790FF", "#9B9700", "#549E79", "#FFF69F", "#201625", "#72418F", "#BC23FF", "#99ADC0", "#3A2465", "#922329", "#5B4534", "#FDE8DC", "#404E55", "#0089A3", "#CB7E98", "#A4E804", "#324E72", "#6A3A4C"]
     
     for (var n=0; n < visData['attributes'].length; n++){
       // console.log("counting n")
@@ -194,14 +195,14 @@ class InsightVisualizationProvider {
         var colorattr = rawdata[n]['value'];
         if (visData['rectorder'] == "descending"){
           for (var r=topnlist[n]; r >= 0 ; r--){
-            colorprocess.setAlpha(thealpha);
+            //colorprocess.setAlpha(thealpha);
             //colorlist.push(colorprocess.darken(n).toRgbString());
             var colorattr1 = colorattr[r];
             if (colorattr1 != undefined){
               //colordict[colorattr1['key']]= blendRGBColors(colorprocess.toRgbString(), colorprocess2.toRgbString(), thealpha)//colorprocess.darken(n).toRgbString()
 
               //colordict[colorattr1['key']]= colorprocess.darken(n).toRgbString()
-              colordict[colorattr1['key']]= colorprocess.toRgbString()
+              colordict[colorattr1['key']]= colorprocess.saturate(n+5).brighten(n-5).toRgbString()
               thealpha = thealpha - 0.07;
             }
           }
@@ -411,7 +412,7 @@ class InsightVisualizationProvider {
         var attr_val = tempvals.getAttribute("attrval");
         var attr_quantity = tempvals.childNodes[numtouse].getAttribute("quant");
         var attr_percent = tempvals.childNodes[numtouse].getAttribute("percent");
-        var offset = $(".myvis-div").offset();
+        var offset = $(".euiPageContentBody").offset();
         var tooltipx = (Number(event.pageX) - offset.left); //525
         var tooltipy = (Number(event.pageY) - offset.top); //35
         if (Number(event.pageX) >= 1220){
@@ -527,7 +528,11 @@ class InsightVisualizationProvider {
 
       for(var s=0; s < rawdata.length; s++){
         var tableattr = rawdata[s]['key'];
+        console.log("----------");
+        console.log(tableattr);
         var tablex = x(tableattr);
+        console.log(tablex);
+        console.log("------------")
         var tableattrvals = rawdata[s]['value'];
         var tabledata=[];
         var columns = [];

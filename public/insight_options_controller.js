@@ -4,7 +4,7 @@ const module = uiModules.get('kibana/insight', ['kibana'], ['elasticsearch']);
 
 module.service('client', function (esFactory) {
   return esFactory({
-    host: 'localhost:9200',
+    //host: 'localhost:9200',
     apiVersion: 'master',
     log: 'trace'
   });
